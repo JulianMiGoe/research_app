@@ -30,6 +30,7 @@
   --well: #D8E1DC; --well-on: #E5B413; --well-now: #3D63D8;
   --z1: #B5A891; --z2: #9DB158; --z3: #5F8F4D; --z4: #8B7FB6;
   --night: #CDD8D5; --day: #F6F1D9;
+  --sea: #CFE1E7; --land: #F3F5EC; --land-dk: #E4E8DC;
   --overlay: rgba(10, 24, 29, .45); --shadow: rgba(10, 30, 36, .22);
   --f-ui: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mark: "Permanent Marker", "Marker Felt", "Comic Sans MS", cursive;
@@ -46,6 +47,7 @@
     --well: #223A40; --well-on: #F0C63E; --well-now: #6F91F6;
     --z1: #6F6757; --z2: #6E8240; --z3: #46703A; --z4: #6A5E93;
     --night: #0B171B; --day: #2C3B33;
+    --sea: #0E2830; --land: #243B3A; --land-dk: #1C3130;
     --overlay: rgba(0, 0, 0, .6); --shadow: rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
@@ -59,6 +61,7 @@
   --well: #223A40; --well-on: #F0C63E; --well-now: #6F91F6;
   --z1: #6F6757; --z2: #6E8240; --z3: #46703A; --z4: #6A5E93;
   --night: #0B171B; --day: #2C3B33;
+  --sea: #0E2830; --land: #243B3A; --land-dk: #1C3130;
   --overlay: rgba(0, 0, 0, .6); --shadow: rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
@@ -221,6 +224,36 @@ main {
 .strength i.f { background: var(--daten); }
 textarea.code { width: 100%; min-width: 0; padding: 10px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--sheet-2); color: var(--ink); font: 400 11px/1.4 var(--f-num); resize: vertical; word-break: break-all; }
 .mono { font-family: var(--f-num); letter-spacing: .03em; }
+
+/* Karte der Feldgebiete */
+.map { margin: 0; }
+.map svg { display: block; width: 100%; height: auto; max-width: 100%; border-radius: 6px; border: 1px solid var(--line); }
+.map .sea { fill: var(--sea); }
+.map .coast { fill: var(--land); stroke: var(--line); stroke-width: .7; stroke-linejoin: round; }
+.map .coast.dk { fill: var(--land-dk); }
+.map .border { fill: none; stroke: var(--muted); stroke-width: .7; stroke-dasharray: 2 2; opacity: .7; }
+.map .sea-l { font: italic 400 11px var(--f-pub); fill: var(--ink-2); opacity: .75; letter-spacing: .06em; }
+.map .land-l { font: 700 6.5px var(--f-ui); fill: var(--muted); letter-spacing: .16em; }
+.map .city circle { fill: var(--muted); }
+.map .city text { font: 400 7.5px var(--f-ui); fill: var(--muted); }
+.map .mk .hit { fill: transparent; }
+.map .mk .dot { fill: var(--ink); stroke: var(--sheet); stroke-width: 1.5; }
+.map .mk.locked .dot { fill: var(--sheet); stroke: var(--muted); stroke-dasharray: 2 1.5; }
+.map .mk .lv { font: 700 8px var(--f-num); fill: var(--sheet); text-anchor: middle; }
+.map .mk .lb { font: 700 9px var(--f-ui); fill: var(--ink); paint-order: stroke; stroke: var(--sheet); stroke-width: 2.6px; stroke-linejoin: round; }
+.map .mk.locked .lb { fill: var(--muted); font-weight: 400; }
+.map .mk .ring { fill: none; stroke: var(--tape); stroke-width: 2.5; }
+.map .mk .act { fill: var(--tape); stroke: var(--sheet); stroke-width: 1; }
+.map .mk.off { opacity: .35; }
+.map .mk[data-a] { cursor: pointer; }
+.map .mk[data-a]:hover .dot { stroke: var(--tape); }
+.map .mk:focus { outline: none; }
+.map .mk:focus-visible .dot { stroke: var(--daten); stroke-width: 2.5; }
+.legend i.lg-open { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border-color: var(--ink); }
+.legend i.lg-locked { width: 10px; height: 10px; border-radius: 50%; background: var(--sheet); border: 1.5px dashed var(--muted); }
+.legend i.lg-act { width: 7px; height: 7px; border-radius: 50%; background: var(--tape); border-color: var(--tape); }
+.card.me { box-shadow: inset 4px 0 0 var(--ink-2); }
+.chron li b { font-weight: 400; font-size: 13.5px; }
 
 /* Probenbeutel: Stationen und Studien */
 .bag { padding: 0 14px 14px; overflow: hidden; }
@@ -648,10 +681,10 @@ var PPP = (function () {
   var CAREER = [
     { id: 'postdoc', name: 'Postdoc', short: 'Postdoc', ga: 300, sws: 2, slots: 1, bonus: 0, req: null },
     { id: 'ngl', name: 'Nachwuchsgruppenleitung', short: 'NWG-Leitung', ga: 600, sws: 2, slots: 2, bonus: 20000, req: { h: 2, rep: 60, papers: 3 } },
-    { id: 'w1', name: 'Juniorprofessur (W1)', short: 'Jun.-Prof.', ga: 1000, sws: 4, slots: 3, bonus: 40000, req: { h: 7, rep: 400, funds: 250000 } },
-    { id: 'w2', name: 'W2-Professur', short: 'W2-Prof.', ga: 1700, sws: 6, slots: 4, bonus: 90000, req: { h: 15, rep: 1800, theses: 8, phds: 1 } },
-    { id: 'w3', name: 'W3-Professur', short: 'W3-Prof.', ga: 2800, sws: 8, slots: 6, bonus: 160000, req: { h: 26, rep: 6000, phds: 3 } },
-    { id: 'leibniz', name: 'Leibniz-Preis', short: 'Leibniz', ga: 3200, sws: 8, slots: 7, bonus: 2500000, req: { h: 45, rep: 30000 } }
+    { id: 'w1', name: 'Juniorprofessur (W1)', short: 'Jun.-Prof.', ga: 1000, sws: 4, slots: 3, bonus: 40000, req: { h: 8, rep: 450, funds: 300000 } },
+    { id: 'w2', name: 'W2-Professur', short: 'W2-Prof.', ga: 1700, sws: 6, slots: 4, bonus: 90000, req: { h: 16, rep: 2100, theses: 8, phds: 1 } },
+    { id: 'w3', name: 'W3-Professur', short: 'W3-Prof.', ga: 2800, sws: 8, slots: 6, bonus: 160000, req: { h: 30, rep: 8000, phds: 3 } },
+    { id: 'leibniz', name: 'Leibniz-Preis', short: 'Leibniz', ga: 3200, sws: 8, slots: 7, bonus: 2500000, req: { h: 48, rep: 34000 } }
   ];
   var ST = {
     feld: { name: 'Feld', cost0: 1800, levels: ['Spaten & Gummistiefel', 'Bohrstock-Ausrüstung', 'Feldwagen', 'Dauerbeobachtungsflächen', 'Feldstation am Deich', 'Versuchsfeld mit Messsteg', 'Forschungskutter', 'Ökosystem-Observatorium'] },
@@ -686,7 +719,7 @@ var PPP = (function () {
     { id: 'cluster', st: 'buero', name: 'Rechencluster-Zugang', cost: 14000, desc: 'Modelle rechnen über Nacht: Auswertungen +25 %.', eff: { stat: 0.25 }, lvl: 3 },
     { id: 'retreat', st: 'buero', name: 'Jährliches Schreibretreat', cost: 9000, desc: 'Eine Woche Ostsee, null Mails: +10 % beim Schreiben.', eff: { write: 0.1 }, lvl: 3 },
     { id: 'server', st: 'buero', name: 'Datenserver mit Backup', cost: 30000, desc: 'Abwesenheitslimit +4 Stunden. Schützt vor Datenverlust.', eff: { offline: 4 }, lvl: 4 },
-    { id: 'rahmen', st: 'buero', name: 'Rahmenvereinbarung Nationalpark', cost: 0, desc: 'Die Nationalparkverwaltung kennt dich: Genehmigungen kommen sofort.', eff: {}, rep: 60 },
+    { id: 'rahmen', st: 'buero', name: 'Rahmenvereinbarung Nationalpark', cost: 0, desc: 'Die Nationalparkverwaltungen kennen dich: Genehmigungen in allen Nationalpark-Gebieten kommen sofort.', eff: {}, rep: 60 },
     { id: 'deal', st: 'buero', name: 'Open-Access-Vertrag (DEAL)', cost: 0, desc: 'Die Bibliothek zahlt mit: Publikationsgebühren halbiert.', eff: { apc: -0.5 }, career: 2 },
     { id: 'beamer', st: 'lehre', name: 'Beamer, der funktioniert', cost: 800, desc: 'HDMI-Adapter inklusive: Lehrqualität +0,1.', eff: { teach: 0.1 } },
     { id: 'didaktik', st: 'lehre', name: 'Didaktik-Workshop', cost: 1500, desc: 'Aktivierende Methoden statt 90 Folien: Lehrqualität +0,15.', eff: { teach: 0.15 } },
@@ -891,6 +924,83 @@ var PPP = (function () {
   ];
   var ACTM = byId(ACTS);
 
+  /* ---------- Feldgebiete ---------- */
+  var REGIONS = [
+    { id: 'hallig', name: 'Hamburger Hallig', map: 'Hamburger Hallig', area: 'Nordfriesland', lon: 8.82, lat: 54.6, start: true, np: true,
+      desc: 'Festlandsalzwiese hinter Lahnungsfeldern, mit Schafbeweidung und langen Versuchsreihen. Hier hast du promoviert.',
+      en: 'on the Hamburger Hallig, German Wadden Sea', travel: 1, cost: 0, permit: 3, wind: 0, surge: 1, lw: 0, topic: 'weide', aff: { weide: 1.2, zon: 1.1 } },
+    { id: 'elbe', name: 'Haseldorfer Marsch', map: 'Elbe', area: 'Elbe-Ästuar', lon: 9.6, lat: 53.64, start: true, np: false,
+      desc: 'Tidebeeinflusste Brack- und Süßwassermarsch an der Unterelbe. Der Salzgradient des Ästuars macht sie zum Ort für Methanfragen.',
+      en: 'in the Elbe estuary', travel: 1.1, cost: 60, permit: 1, wind: -1, surge: 0.5, lw: 2.6, topic: 'methan', aff: { methan: 1.25, mikro: 1.1, flut: 1.05 } },
+    { id: 'spo', name: 'St. Peter-Ording', map: 'St. Peter', area: 'Eiderstedt', lon: 8.6, lat: 54.32, np: true, unlock: { cost: 2500 },
+      desc: 'Sandige Vorlandsalzwiesen zwischen Dünen und Strand, stark vom Sedimenteintrag geprägt.',
+      en: 'at St. Peter-Ording, German Wadden Sea', travel: 1.12, cost: 90, permit: 3, wind: 0.5, surge: 1.1, lw: -0.4, topic: 'msl', aff: { zon: 1.15, msl: 1.15, carbon: 1.1 } },
+    { id: 'neuwerk', name: 'Neuwerk', map: 'Neuwerk', area: 'Hamburgisches Wattenmeer', lon: 8.5, lat: 53.92, np: true, unlock: { cost: 6000, rep: 40 }, brut: [5, 6],
+      desc: 'Kleine Insel vor Cuxhaven, bei Niedrigwasser mit dem Wattwagen erreichbar. Junge und alte Salzwiese liegen direkt nebeneinander.',
+      en: 'on Neuwerk island, German Wadden Sea', travel: 1.3, cost: 200, permit: 4, wind: 0.6, surge: 1.3, lw: 0.6, topic: 'carbon', aff: { carbon: 1.2, flut: 1.15, msl: 1.1 } },
+    { id: 'sylt', name: 'Sylt', map: 'Sylt', area: 'Nordfriesische Inseln', lon: 8.34, lat: 54.86, np: true, unlock: { cost: 4500, career: 1 },
+      desc: 'Salzwiesen am Königshafen und im Rantumbecken, mit der Wattenmeerstation in List als Anlaufpunkt.',
+      en: 'on the island of Sylt, German Wadden Sea', travel: 1.35, cost: 250, permit: 3, wind: 1, surge: 1.3, lw: -1.3, topic: 'msl', aff: { msl: 1.2, mikro: 1.15, duenger: 1.1, warm: 1.1 } },
+    { id: 'spiek', name: 'Spiekeroog', map: 'Spiekeroog', area: 'Ostfriesische Inseln', lon: 7.74, lat: 53.77, np: true, unlock: { cost: 8000, career: 1, rep: 150 }, brut: [5, 6], novelty: 1.08,
+      desc: 'Naturbelassene Inselsalzwiese ohne Deich und Entwässerung: seltene Referenzflächen, aber weit weg.',
+      en: 'on Spiekeroog island, German Wadden Sea', travel: 1.45, cost: 300, permit: 4, wind: 0.8, surge: 1.25, lw: -0.8, topic: 'zon', aff: { zon: 1.2, msl: 1.2, carbon: 1.15, flut: 1.1 } },
+    { id: 'ostsee', name: 'Karrendorfer Wiesen', map: 'Karrendorf', area: 'Greifswalder Bodden', lon: 13.38, lat: 54.15, np: false, unlock: { cost: 5500, career: 1 }, notide: true,
+      desc: 'Küstenüberflutungsmoor an der Ostsee, 1993 rückgedeicht. Kein Tidenhub: Das Wasser kommt mit dem Wind.',
+      en: 'in a Baltic coastal wetland', travel: 1.5, cost: 350, permit: 2, wind: -0.3, surge: 0.6, lw: 0, topic: 'rueck', aff: { rueck: 1.3, weide: 1.1, duenger: 1.1, mikro: 1.05 } }
+  ];
+  var REGM = byId(REGIONS);
+  var REQ = [
+    { id: 'plots', name: 'Dauerplots einmessen', cost: 1800, desc: 'Flächen mit RTK-Pflöcken markiert: 15 % weniger Feldvorbereitung. Jedes Jahr mit Kampagne wird ein Datenjahr der Langzeitreihe.' },
+    { id: 'pegel', name: 'Pegel & Wetterstation', cost: 4800, desc: 'Eigene Messwerte statt Küstenvorhersage: Wind, Regen und Sturmfluten kommen hier so wie angesagt.' },
+    { id: 'quartier', name: 'Quartier vor Ort', cost: 6500, desc: 'Ein gemietetes Zimmer oder ein Bauwagen: zwei Drittel weniger Reiseaufwand, kaum noch Reisekosten.' },
+    { id: 'logger', name: 'Dauermessstation', cost: 9500, needs: 'plots', desc: 'Logger für Redox, Temperatur und Wasserstand: +5 % Messqualität. Liefert jedes Jahr ein Datenjahr, auch ohne Kampagne.' },
+    { id: 'partner', name: 'Partnerschaft mit der Station', cost: 3000, rep: 80, lvl: 2, desc: 'Ranger*innen und Stationsteam helfen mit: 10 % weniger Feldvorbereitung, und dein Team trifft die Terminwahl hier fast immer.' }
+  ];
+  var REQM = byId(REQ);
+  var ORTS = [
+    { n: 0, name: 'Neuland', desc: 'Noch keine Erfahrung vor Ort.' },
+    { n: 4, name: 'Ortskundig', desc: '5 % weniger Feldvorbereitung.' },
+    { n: 12, name: 'Vertraut', desc: '10 % weniger Feldvorbereitung, Genehmigungen eine Woche schneller, Termine gelingen öfter.' },
+    { n: 28, name: 'Heimisch', desc: '15 % weniger Feldvorbereitung, die Vorhersage täuscht seltener, das Team wählt bessere Termine.' },
+    { n: 55, name: 'Zuhause', desc: '20 % weniger Feldvorbereitung, +3 % Messqualität, und du kennst die spannenden Ecken: Studien hier 5 % neuer.' },
+    { n: 100, name: 'Legende', desc: '25 % weniger Feldvorbereitung, jede Kampagne hier bringt Renommee.' }
+  ];
+  var ORTS_PREP = [0, 0.05, 0.1, 0.15, 0.2, 0.25];
+
+  /* ---------- Profil der Gruppenleitung ---------- */
+  var PI_SKILLS = ['feld', 'labor', 'stat', 'schreiben', 'lehre', 'mgmt'];
+  var PI_SKILL_NAME = { feld: 'Feldarbeit', labor: 'Labor', stat: 'Statistik', schreiben: 'Schreiben', lehre: 'Lehre', mgmt: 'Führung' };
+  var PI_SKILL_DESC = { feld: 'Feldstunden, wenn du selbst draußen bist', labor: 'Laborstunden an Labortagen', stat: 'Auswertungen und Modellwahl in deinen Studien', schreiben: 'Schreibstunden und Manuskriptqualität',
+    lehre: 'Qualität neuer Lehrveranstaltungen', mgmt: 'Verwaltung und Motivation im Team' };
+  var PI_MAX = 6;
+  var SPECS = [
+    { id: 'bgc', name: 'Biogeochemie', ag: 'Biogeochemie der Küstenböden', sk: 'labor', qs: ['flut', 'methan', 'carbon', 'duenger'], f: 1.06, desc: 'Redox, Sulfat und Kohlenstoff: was im Boden passiert. Studien zu Überflutung, Methan, Blue Carbon und Stickstoff werden 6 % stärker.' },
+    { id: 'veg', name: 'Vegetationsökologie', ag: 'Vegetationsökologie der Salzwiesen', sk: 'feld', qs: ['zon', 'weide', 'rueck', 'duenger'], f: 1.06, desc: 'Zonierung, Beweidung, Pflanzengemeinschaften. Studien zu Zonierung, Beweidung, Rückdeichung und Stickstoff werden 6 % stärker.' },
+    { id: 'mikro', name: 'Mikrobielle Ökologie', ag: 'Mikrobielle Ökologie mariner Böden', sk: 'labor', qs: ['mikro', 'methan', 'warm'], f: 1.08, desc: 'Wer im Schlick lebt und Methan macht. Studien zu Methanogenen, Methan und Erwärmung werden 8 % stärker.' },
+    { id: 'geo', name: 'Küstengeomorphologie', ag: 'Küstengeomorphologie', sk: 'feld', qs: ['msl', 'flut', 'rueck', 'carbon'], f: 1.06, desc: 'Sediment, Höhe, Meeresspiegel. Studien zu Meeresspiegel, Überflutung, Rückdeichung und Blue Carbon werden 6 % stärker.' },
+    { id: 'stat', name: 'Ökologische Statistik', ag: 'Ökologische Statistik und Modellierung', sk: 'stat', qs: [], f: 1, desc: 'Gemischte Modelle für jede Frage: Alle Studienleitungen zählen bei Modellwahl und Auswertung eine Statistikstufe besser.' }
+  ];
+  var SPECM = byId(SPECS);
+  var TALENTS = [
+    { id: 'frueh', name: 'Frühaufsteher*in', desc: '3 Wochenstunden mehr für die Forschung.' },
+    { id: 'gremien', name: 'Gremienprofi', desc: '20 % weniger neue Verwaltungsvorgänge.' },
+    { id: 'ruhe', name: 'Stoische Ruhe', desc: 'Der volle Posteingang bremst dich erst ab 35 statt 25 Vorgängen.' },
+    { id: 'gezeiten', name: 'Gezeitenkalender im Kopf', desc: 'Feldtermine gelingen öfter, und wo du leitest, wählt das Team fast immer den besten Tag.' },
+    { id: 'ortskunde', name: 'Pfadfinder*in', desc: '50 % mehr Ortskenntnis pro Kampagne, neue Feldgebiete 30 % günstiger.' },
+    { id: 'charisma', name: 'Charismatisch', desc: 'Die Motivation im Team sinkt 30 % langsamer, 10 % mehr Interesse an Abschlussarbeiten.' },
+    { id: 'mentor', name: 'Mentor*in', desc: 'Dein Team lernt 30 % schneller, Studierende brauchen seltener Betreuung.' },
+    { id: 'didaktik', name: 'Begnadete Lehre', desc: 'Lehrqualität +0,15, Vorbereitung 30 % schneller.' },
+    { id: 'antrag', name: 'Antragsprofi', desc: 'Anträge 15 % schneller geschrieben, 5 Prozentpunkte höhere Bewilligungschance.' },
+    { id: 'gutachter', name: 'Gefragte*r Gutachter*in', desc: 'Gutachten 30 % schneller, 25 % mehr Renommee dafür, häufiger angefragt.' },
+    { id: 'netz', name: 'Netzwerker*in', desc: 'Tagungen bringen 25 % mehr Renommee und doppelt so viele Kontakte.' },
+    { id: 'feder', name: 'Spitze Feder', desc: 'Manuskripte werden 5 % stärker.' }
+  ];
+  var TALM = byId(TALENTS);
+  var EXPERT = [{ n: 0, name: 'Neu' }, { n: 1, name: 'Einstieg' }, { n: 3, name: 'Kenner*in' }, { n: 6, name: 'Expert*in' }, { n: 10, name: 'Referenz' }, { n: 15, name: 'Koryphäe' }];
+  var TEMPOS = [{ v: 1, name: 'Zügig' }, { v: 1.5, name: 'Normal' }, { v: 2, name: 'Gemächlich' }, { v: 3, name: 'Entspannt' }];
+  var TRAIT_K = { watt: 'feld', seefest: 'feld', tide: 'feld', pip: 'labor', gcdoc: 'labor', rgenie: 'stat', latex: 'schreiben' };
+  QM.methan.regions = ['elbe']; QM.rueck.regions = ['ostsee']; QM.warm.regions = ['hallig'];
+
   var ACH = [
     { id: 'paper1', name: 'Erstautor*in', desc: 'Erste Publikation' },
     { id: 'desk', name: 'Willkommen in der Wissenschaft', desc: 'Erster Desk Reject' },
@@ -930,7 +1040,15 @@ var PPP = (function () {
     { id: 'paper10', name: 'Zehn Paper', desc: 'Zehn Publikationen' },
     { id: 'paper50', name: 'Vielschreiber*in', desc: 'Fünfzig Publikationen' },
     { id: 'cite100', name: 'Klassiker', desc: 'Ein Paper mit 100 Zitationen' },
-    { id: 'million', name: 'Drittmittel-Million', desc: 'Eine Million Euro eingeworben' }
+    { id: 'million', name: 'Drittmittel-Million', desc: 'Eine Million Euro eingeworben' },
+    { id: 'neuland', name: 'Neuland', desc: 'Ein neues Feldgebiet erschlossen' },
+    { id: 'heimisch', name: 'Heimisch', desc: 'Ortskenntnis »Heimisch« in einem Gebiet' },
+    { id: 'legende', name: 'Ortslegende', desc: 'Ortskenntnis »Legende« in einem Gebiet' },
+    { id: 'entdecker', name: 'Küstenkenner*in', desc: 'Alle sieben Feldgebiete erschlossen' },
+    { id: 'reihe10', name: 'Langer Atem', desc: 'Zehn Datenjahre in einem Gebiet' },
+    { id: 'synthese', name: 'Die große Linie', desc: 'Eine Langzeitsynthese ausgewertet' },
+    { id: 'koryphae', name: 'Koryphäe', desc: 'Fünfzehn Publikationen zu einem Thema' },
+    { id: 'profil', name: 'Profil geschärft', desc: 'Eine eigene Fähigkeit auf das Maximum 6 gebracht' }
   ];
 
   var QUIZ = [
@@ -1028,11 +1146,15 @@ var PPP = (function () {
       grants: [], grantSubs: [], grantResub: {}, grantRep: {}, topicPubs: {}, qno: {}, reviews: [], modules: {}, sem: { weeks: 0, held: 0 },
       dec: [], weather: { k: 'wolkig', f: 1 }, helium: 0, warmBroken: 0, fieldStop: 0, labCredit: 0, laptop: 0, decYear: 0,
       log: [], ach: {}, flags: { onboarded: false }, cites: 0, quizWeek: 0, partyWeek: -99,
-      hist: null, confReg: [], alumni: [], net: 0, piAway: 0,
+      hist: null, confReg: [], alumni: [], net: 0, piAway: 0, tempo: 2, pi: newPi(), reg: {}, chron: [],
       stats: { campaigns: 0, failed: 0, samples: 0, measured: 0, lost: 0, hField: 0, hLab: 0, hDesk: 0, studies: 0, papers: 0, subs: 0, funds: 0,
         theses: 0, phds: 0, reviews: 0, goodReviews: 0, apc: 0, earned: 0, spent: 0, desk: 0, nulls: 0,
-        confs: 0, talks: 0, posters: 0, keynotes: 0, awards: 0, qaGood: 0, trainings: 0, levelups: 0, alumniN: 0, profs: 0, internal: 0, perfectCal: 0, maxStaff: 0 }
+        confs: 0, talks: 0, posters: 0, keynotes: 0, awards: 0, qaGood: 0, trainings: 0, levelups: 0, alumniN: 0, profs: 0, internal: 0, perfectCal: 0, maxStaff: 0,
+        synth: 0, piUps: 0, regUps: 0, perks: 0 }
     };
+    S.flags.v4seen = true;
+    REGIONS.forEach(function (R) { regState(S, R.id); });
+    S.reg.hallig.xp = 4; S.reg.hallig.studies = 1;
     S.cands = [genCandidate(S, 'hiwi'), genCandidate(S, 'hiwi'), genCandidate(S, 'phd')];
     seedDissertation(S);
     return S;
@@ -1040,7 +1162,7 @@ var PPP = (function () {
   function seedDissertation(S) {
     var st = { id: nid(S, 'st'), qid: 'diss', title: 'Promotionsdaten', ask: 'Was steuert das Bodenredox entlang der Salzwiesenzonierung?',
       groups: ['Pionierzone', 'obere Salzwiese'], en: 'Marsh zonation', novelty: 1.0, topic: 'flut', diss: true,
-      n: 5, plots: 10, k: 2, params: ['redox', 'pw', 'veg'], lead: 'pi', phase: 'done', model: 'mixed', noise: 1, prio: 0, created: -100,
+      n: 5, plots: 10, k: 2, params: ['redox', 'pw', 'veg'], lead: 'pi', phase: 'done', model: 'mixed', noise: 1, prio: 0, created: -100, reg: 'hallig', permitW: 0,
       camp: { done: 2, prep: 0, need: 0, ready: false, next: 0 }, comp: [0.9, 1], fq: [0.95, 0.95], q: {}, ext: [], truth: {}, cost: 0, findings: null };
     var tr = { redox: [true, 1.15, 1], pw: [true, 0.8, -1], veg: [false, 0, 1] };
     st.params.forEach(function (p) {
@@ -1065,13 +1187,23 @@ var PPP = (function () {
     return f;
   }
   function invalidate(S) { S._fx = null; }
+  function newPi() { var sk = {}, xp = {}; PI_SKILLS.forEach(function (k) { sk[k] = 2; xp[k] = 0; }); return { spec: null, sk: sk, xp: xp, pts: 3, picks: 1, talents: [] }; }
+  function tempo(S) { return S.tempo > 0 ? S.tempo : 2; }
+  function setTempo(S, v) { v = +v; if (TEMPOS.some(function (t) { return t.v === v; })) S.tempo = v; }
+  function hasTalent(S, id) { return !!(S.pi && S.pi.talents && S.pi.talents.indexOf(id) >= 0); }
+  function specIs(S, id) { return !!(S.pi && S.pi.spec === id); }
+  function piSk(S, k) { return S.pi && S.pi.sk[k] != null ? S.pi.sk[k] : 3 + 0.5 * S.career; }
+  function hasTrait(p, id) { return p.trait === id || !!(p.perks && p.perks.indexOf(id) >= 0); }
+  function specMult(S, qid) { var sp = S.pi && S.pi.spec ? SPECM[S.pi.spec] : null; return sp && sp.qs.indexOf(qid) >= 0 ? sp.f : 1; }
+  function expertLevel(S, topic) { var n = (S.topicPubs && S.topicPubs[topic]) || 0, l = 0; EXPERT.forEach(function (e, i) { if (n >= e.n) l = i; }); return l; }
+  function chron(S, text) { if (!S.chron) S.chron = []; S.chron.unshift({ wk: S.week, t: text }); if (S.chron.length > 80) S.chron.length = 80; }
   function slots(S, st) { return SLOTS[S.lvl[st] - 1]; }
   function instSlots(S) { return 1 + S.lvl.labor; }
   function instUsed(S) { return Object.keys(S.inst).length; }
   function maxN(S) { return [6, 8, 10, 12][Math.min(3, S.lvl.feld - 1)]; }
   function stationMult(S, st) { return 1 + 0.08 * (S.lvl[st] - 1); }
   function staffAt(S, st) { return S.staff.filter(function (p) { return p.st === st; }); }
-  function piSkill(S) { return 3 + 0.5 * S.career; }
+  function piSkill(S) { return S.pi ? avg(['feld', 'labor', 'stat', 'schreiben'].map(function (k) { return piSk(S, k); })) : 3 + 0.5 * S.career; }
   function skEff(s) { return 0.5 + 0.25 * (s || 0); }
   function motF(p) { return 0.55 + 0.45 * p.mot; }
   function repMult(S) { return 1 + fx(S).rep; }
@@ -1079,13 +1211,17 @@ var PPP = (function () {
   function thesisSlots(S) { return CAREER[S.career].slots; }
   function offeredModules(S) { return Object.keys(S.modules).filter(function (k) { return S.modules[k].offered; }); }
   function restFactor(S) { return (S.rested > 0 && S.act !== 'urlaub') ? 1.3 : 1; }
-  function adminPenalty(S) { return S.admin > 25 ? Math.max(0.5, 1 - (S.admin - 25) / 100) : 1; }
+  function adminThreshold(S) { return hasTalent(S, 'ruhe') ? 35 : 25; }
+  function adminPenalty(S) { var th = adminThreshold(S); return S.admin > th ? Math.max(0.5, 1 - (S.admin - th) / 100) : 1; }
   function trF(S, p, k) {
-    var tr = p.trait ? TRAITM[p.trait] : null, m = 1;
-    if (!tr) return m;
-    if (tr.eff[k]) m *= 1 + tr.eff[k];
-    if (tr.eff.all) m *= 1 + tr.eff.all;
-    if (tr.eff.coffee && !S.upg.kaffee) m *= 0.8;
+    var m = 1;
+    (p.trait ? [p.trait] : []).concat(p.perks || []).forEach(function (id) {
+      var tr = TRAITM[id];
+      if (!tr) return;
+      if (tr.eff[k]) m *= 1 + tr.eff[k];
+      if (tr.eff.all) m *= 1 + tr.eff.all;
+      if (tr.eff.coffee && !S.upg.kaffee) m *= 0.8;
+    });
     return m;
   }
   function capOf(S, id) {
@@ -1104,16 +1240,16 @@ var PPP = (function () {
   function rates(S) {
     var c = cal(S), f = fx(S);
     var lectureH = c.lecture ? offeredModules(S).length * 4 : 0;
-    var focusH = Math.max(0, PI_HOURS - lectureH - ADMIN_PI);
-    var eff = skEff(piSkill(S));
-    var piH = (S.piAway > 0 ? 0 : 1) * focusH * eff * adminPenalty(S) * restFactor(S);
+    var totalH = PI_HOURS + (hasTalent(S, 'frueh') ? 3 : 0);
+    var focusH = Math.max(0, totalH - lectureH - ADMIN_PI);
+    var piH = (S.piAway > 0 ? 0 : 1) * focusH * adminPenalty(S) * restFactor(S);
     var r = { feld: 0, labor: 0, write: 0, stat: 0, pi: { feld: 0, labor: 0, write: 0, stat: 0, admin: 0 },
-      hours: { total: PI_HOURS, lehre: lectureH, verwaltung: ADMIN_PI, fokus: focusH },
+      hours: { total: totalH, lehre: lectureH, verwaltung: ADMIN_PI, fokus: focusH },
       income: CAREER[S.career].ga, salaries: 0, cost: 0, grants: 0, adminIn: 0, adminOut: 0 };
-    if (S.act === 'feld') r.pi.feld = piH;
-    else if (S.act === 'labor') r.pi.labor = piH;
-    else if (S.act === 'buero') { r.pi.write = piH; r.pi.stat = piH; }
-    else if (S.act === 'verwaltung') r.pi.admin = focusH * eff;
+    if (S.act === 'feld') r.pi.feld = piH * skEff(piSk(S, 'feld'));
+    else if (S.act === 'labor') r.pi.labor = piH * skEff(piSk(S, 'labor'));
+    else if (S.act === 'buero') { r.pi.write = piH * skEff(piSk(S, 'schreiben')); r.pi.stat = piH * skEff(piSk(S, 'stat')); }
+    else if (S.act === 'verwaltung') r.pi.admin = focusH * skEff(piSk(S, 'mgmt'));
     r.feld = r.pi.feld; r.labor = r.pi.labor; r.write = r.pi.write; r.stat = r.pi.stat;
     var weatherOk = false;
     S.staff.forEach(function (p) {
@@ -1122,7 +1258,7 @@ var PPP = (function () {
       if (p.away > 0) return;
       if (!R.station) { r.adminOut += R.admin * motF(p); return; }
       var h = R.hours * motF(p);
-      if (p.st === 'feld') { r.feld += h * skEff(p.sk.feld) * trF(S, p, 'feld'); if (p.trait === 'seefest') weatherOk = true; }
+      if (p.st === 'feld') { r.feld += h * skEff(p.sk.feld) * trF(S, p, 'feld'); if (hasTrait(p, 'seefest')) weatherOk = true; }
       else if (p.st === 'labor') r.labor += h * skEff(p.sk.labor) * trF(S, p, 'labor');
       else { r.write += h * skEff(p.sk.schreiben) * trF(S, p, 'schreiben'); r.stat += h * skEff(p.sk.stat) * trF(S, p, 'stat'); }
     });
@@ -1143,8 +1279,8 @@ var PPP = (function () {
     r.net = r.income - r.cost;
     var lectN = c.lecture ? offeredModules(S).length : 0;
     var activeStudies = S.studies.filter(function (s) { return s.phase !== 'done'; }).length;
-    r.adminIn = Math.max(1, 3 + 0.6 * S.staff.length + 1.5 * S.grants.length + 0.6 * activeStudies + lectN + 0.4 * S.students.length + f.admin);
-    r.adminOut += ADMIN_PI * eff * 0.8 + r.pi.admin;
+    r.adminIn = Math.max(1, 3 + 0.6 * S.staff.length + 1.5 * S.grants.length + 0.6 * activeStudies + lectN + 0.4 * S.students.length + f.admin) * (hasTalent(S, 'gremien') ? 0.8 : 1);
+    r.adminOut += ADMIN_PI * (0.5 + 0.5 * skEff(piSk(S, 'mgmt'))) + r.pi.admin;
     return r;
   }
 
@@ -1194,6 +1330,7 @@ var PPP = (function () {
       case 'tagung': return (d.data.keynote ? 'Keynote-Einladung: ' : 'Tagungsbeitrag: ') + (CONFM[d.data.conf] ? CONFM[d.data.conf].name : '');
       case 'fragerunde': return 'Fragerunde nach dem Vortrag';
       case 'ruf': return 'Ruf für ' + (d.data.name || '') + ' nach ' + (d.data.uni || '');
+      case 'talent': m = person(S, d.ref); return (m ? m.name : 'Jemand') + ': neue Stärke wählen';
     }
     return 'Entscheidung';
   }
@@ -1213,6 +1350,7 @@ var PPP = (function () {
       case 'tagung': out = resolveTagung(S, d, choice, ev, auto); break;
       case 'fragerunde': out = resolveFrage(S, d, choice, ev, auto); break;
       case 'ruf': out = resolveRuf(S, d, choice, ev, auto); break;
+      case 'talent': out = resolvePerk(S, d, choice, ev, auto); break;
       default: dropDecision(S, d);
     }
     return out;
@@ -1266,7 +1404,7 @@ var PPP = (function () {
     var R = ROLES[c.role];
     var p = { id: nid(S, 's'), role: c.role, g: c.g, name: c.name, sk: c.sk, trait: c.trait, st: R.station ? bestFreeStation(S, c.sk) : null, mot: 0.85, hired: S.t,
       end: R.contract ? S.t + R.contract * WEEK : null, talkWk: -99, ch: 0, pub: 0, ext: 0, away: 0,
-      xp: c.xp || { feld: 0, labor: 0, stat: 0, schreiben: 0 }, path: (c.path || []).concat([{ r: c.role, wk: S.week }]), trainWk: -99, confs: 0 };
+      xp: c.xp || { feld: 0, labor: 0, stat: 0, schreiben: 0 }, path: (c.path || []).concat([{ r: c.role, wk: S.week }]), trainWk: -99, confs: 0, perks: (c.perks || []).slice(), focus: null };
     S.staff.push(p);
     S.cands = S.cands.filter(function (x) { return x.id !== cid; });
     if (c.internal) {
@@ -1314,16 +1452,16 @@ var PPP = (function () {
     return null;
   }
   function leadOptions(S) {
-    var out = [{ id: 'pi', name: 'Du', sk: { feld: piSkill(S), labor: piSkill(S), stat: piSkill(S), schreiben: piSkill(S) }, load: leadLoad(S, 'pi') }];
+    var out = [{ id: 'pi', name: 'Du', sk: { feld: piSk(S, 'feld'), labor: piSk(S, 'labor'), stat: piSk(S, 'stat'), schreiben: piSk(S, 'schreiben') }, load: leadLoad(S, 'pi') }];
     S.staff.forEach(function (p) { if (ROLES[p.role].lead) out.push({ id: p.id, name: p.name, sk: p.sk, load: leadLoad(S, p.id), role: p.role }); });
     return out;
   }
-  function leadLoad(S, id) { return S.studies.filter(function (s) { return s.lead === id && s.phase !== 'done'; }).length; }
+  function leadLoad(S, id) { return S.studies.filter(function (s) { return s.lead === id && s.phase !== 'done' && !s.synth; }).length; }
   function leadSkill(S, lead, k) {
     var base;
-    if (!lead || lead === 'pi') base = piSkill(S);
-    else { var p = person(S, lead); base = p ? (p.sk[k] || 0) : piSkill(S); }
-    return base + (k === 'stat' ? fx(S).statSkill : 0);
+    if (!lead || lead === 'pi') base = piSk(S, k);
+    else { var p = person(S, lead); base = p ? (p.sk[k] || 0) : piSk(S, k); }
+    return base + (k === 'stat' ? fx(S).statSkill + (specIs(S, 'stat') ? 1 : 0) : 0);
   }
 
   /* ---------- Ausbau ---------- */
@@ -1412,17 +1550,29 @@ var PPP = (function () {
     if (!Q) return 'Unbekannt.';
     if (Q.career && S.career < Q.career) return 'Ab ' + CAREER[Q.career].name;
     if (Q.needs && !S.upg[Q.needs]) return 'Braucht ' + UPGM[Q.needs].name;
+    if (Q.regions && !Q.regions.some(function (x) { return regOpen(S, x); })) return 'Braucht das Feldgebiet ' + Q.regions.map(function (x) { return REGM[x].name; }).join(' oder ');
     for (var i = 0; i < Q.core.length; i++) { var b = paramAvail(S, Q.core[i]); if (b) return b; }
     return null;
   }
   function maxStudies(S, lead) { return 2; }
   // Jede weitere Studie zur selben Frage ist etwas weniger neu
-  function questionNovelty(S, qid) { var Q = QM[qid], k = (S.qno && S.qno[qid]) || 0; return Q ? Q.novelty * Math.max(0.5, 1 - 0.07 * k) : 1; }
+  // Wiederholungen im selben Gebiet zählen voll, in anderen Gebieten halb
+  function questionNovelty(S, qid, rid) {
+    var Q = QM[qid];
+    if (!Q) return 1;
+    var all = (S.qno && S.qno[qid]) || 0;
+    if (!rid || !REGM[rid]) return Q.novelty * Math.max(0.5, 1 - 0.07 * all);
+    var rs = regState(S, rid), R = REGM[rid], same = (rs.qno && rs.qno[qid]) || 0;
+    var v = Q.novelty * Math.max(0.5, 1 - 0.07 * same - 0.035 * Math.max(0, all - same));
+    return 0.92 * v * ((R.aff && R.aff[qid]) || 1) * (R.novelty || 1) * (rs.studies ? 1 : 1.08) * (ortsLevel(S, rid) >= 4 ? 1.05 : 1);
+  }
   function planCheck(S, plan) {
     var Q = QM[plan.q];
     if (!Q) return 'Wähle eine Fragestellung.';
     var b = questionBlock(S, plan.q);
     if (b) return b;
+    var rb = regionPlanBlock(S, plan.q, plan.reg || bestRegion(S, plan.q));
+    if (rb) return rb;
     if (!plan.params || !plan.params.length) return 'Wähle Messgrößen.';
     for (var i = 0; i < plan.params.length; i++) {
       var p = plan.params[i];
@@ -1439,9 +1589,9 @@ var PPP = (function () {
     return null;
   }
   function planEstimate(S, plan) {
-    var Q = QM[plan.q], plots = 2 * plan.n;
-    var fieldH = 10 + plots * plan.params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0);
-    var inst = {}, cost = plan.k * (150 + 8 * plots), months = null;
+    var Q = QM[plan.q], plots = 2 * plan.n, rid = plan.reg || bestRegion(S, plan.q);
+    var fieldH = (10 + plots * plan.params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0)) * prepFactor(S, rid);
+    var inst = {}, cost = plan.k * campaignCost(S, plots, rid), months = null;
     plan.params.forEach(function (p) {
       var P = PARAMM[p], n = plots * (P.per || 1) * plan.k;
       if (P.inst) inst[P.inst] = (inst[P.inst] || 0) + n;
@@ -1450,19 +1600,22 @@ var PPP = (function () {
     });
     var gain = Math.sqrt(1 + 0.35 * (plan.k - 1));
     var power = phi(0.95 * Math.sqrt(plan.n / 2) * gain - 1.96);
-    return { plots: plots, fieldH: fieldH, inst: inst, cost: Math.round(cost), months: months, power: power, permit: S.upg.rahmen ? 0 : 3, novelty: questionNovelty(S, plan.q), repeat: (S.qno && S.qno[plan.q]) || 0 };
+    return { plots: plots, fieldH: fieldH, inst: inst, cost: Math.round(cost), months: months, power: power, permit: permitWeeks(S, rid), novelty: questionNovelty(S, plan.q, rid), repeat: (S.qno && S.qno[plan.q]) || 0,
+      reg: rid, travel: travelCost(S, rid), prep: prepFactor(S, rid), brut: regOf(rid).brut || null };
   }
   function newStudy(S, plan, ev) {
     var err = planCheck(S, plan);
     if (err) return err;
-    var Q = QM[plan.q], plots = 2 * plan.n;
+    var Q = QM[plan.q], plots = 2 * plan.n, rid = plan.reg || bestRegion(S, plan.q), R = REGM[rid], rs = regState(S, rid), pw = permitWeeks(S, rid);
     if (!S.qno) S.qno = {};
-    var nov = questionNovelty(S, Q.id), no = (S.qno[Q.id] || 0) + 1;
+    var nov = questionNovelty(S, Q.id, rid), no = (S.qno[Q.id] || 0) + 1;
     S.qno[Q.id] = no;
+    rs.qno[Q.id] = (rs.qno[Q.id] || 0) + 1; rs.studies += 1;
+    var base = 10 + plots * plan.params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0);
     var st = { id: nid(S, 'st'), qid: Q.id, no: no, title: Q.title + (no > 1 ? ' ' + roman(no) : ''), ask: Q.q, groups: Q.groups, en: Q.en, novelty: nov, topic: Q.id,
-      n: plan.n, plots: plots, k: plan.k, params: plan.params.slice(), lead: plan.lead, prio: S.studies.length,
-      phase: S.upg.rahmen ? 'field' : 'permit', permitAt: S.t + (S.upg.rahmen ? 0 : 3 * WEEK),
-      camp: { done: 0, prep: 0, need: 10 + plots * plan.params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0), ready: false, next: S.week },
+      n: plan.n, plots: plots, k: plan.k, params: plan.params.slice(), lead: plan.lead, prio: S.studies.length, reg: rid, permitW: pw,
+      phase: pw > 0 ? 'permit' : 'field', permitAt: S.t + pw * WEEK,
+      camp: { done: 0, prep: 0, base: base, need: Math.round(base * prepFactor(S, rid)), ready: false, next: S.week },
       comp: [], fq: [], q: {}, ext: [], truth: {}, cost: 0, created: S.week, model: null, noise: 1, findings: null };
     st.params.forEach(function (p) {
       var real = rnd() < (Q.prior[p] != null ? Q.prior[p] : 0.4);
@@ -1471,7 +1624,7 @@ var PPP = (function () {
     });
     S.studies.push(st);
     S.admin += 3;
-    log(S, ev, 'studie', 'Neue Studie: ' + st.title + '. ' + (S.upg.rahmen ? 'Die Feldarbeit kann beginnen.' : 'Die Genehmigung der Nationalparkverwaltung ist beantragt.'));
+    log(S, ev, 'studie', 'Neue Studie: ' + st.title + ' (' + R.name + '). ' + (pw ? 'Die Genehmigung ist beantragt, sie dauert etwa ' + (pw === 1 ? 'eine Woche.' : pw + ' Wochen.') : 'Die Feldarbeit kann beginnen.'));
     return null;
   }
   function studyPrio(S, sid, dir) {
@@ -1483,9 +1636,10 @@ var PPP = (function () {
     list.forEach(function (s, k) { s.prio = k; });
   }
   function byPrio(S) { return S.studies.slice().sort(function (a, b) { return a.prio - b.prio; }); }
-  function campaignOpen(S, params, next) {
-    var m = cal(S).month;
+  function campaignOpen(S, params, next, rid) {
+    var m = cal(S).month, R = rid ? REGM[rid] : null;
     if (S.week < next) return false;
+    if (R && R.brut && m >= R.brut[0] && m <= R.brut[1]) return false;
     return params.every(function (p) { var P = PARAMM[p]; return !P.months || (m >= P.months[0] && m <= P.months[1]); });
   }
   function campaignWindow(params) {
@@ -1523,73 +1677,303 @@ var PPP = (function () {
     if (st) st.cost += c;
   }
 
+  /* ---------- Feldgebiete: Zustand, Ortskenntnis, Ausstattung ---------- */
+  function regState(S, rid) {
+    if (!S.reg) S.reg = {};
+    var r = S.reg[rid];
+    if (!r) r = S.reg[rid] = { open: !!(REGM[rid] && REGM[rid].start), xp: 0, camps: 0, fails: 0, studies: 0, papers: 0, years: [], eq: {}, qno: {}, pn: {}, synth: 0 };
+    return r;
+  }
+  function regOf(rid) { return REGM[rid] || REGM.hallig; }
+  function regOpen(S, rid) { return !!REGM[rid] && regState(S, rid).open; }
+  function ortsLevel(S, rid) { var x = regState(S, rid).xp, l = 0; for (var i = 0; i < ORTS.length; i++) if (x >= ORTS[i].n) l = i; return l; }
+  function regEq(S, rid, e) { return !!regState(S, rid).eq[e]; }
+  function travelF(S, rid) { return 1 + (regOf(rid).travel - 1) * (regEq(S, rid, 'quartier') ? 0.35 : 1); }
+  function prepFactor(S, rid) { return travelF(S, rid) * (1 - ORTS_PREP[ortsLevel(S, rid)]) * (regEq(S, rid, 'plots') ? 0.85 : 1) * (regEq(S, rid, 'partner') ? 0.9 : 1); }
+  function travelCost(S, rid) { return Math.round(regOf(rid).cost * (regEq(S, rid, 'quartier') ? 0.2 : 1)); }
+  function campaignCost(S, plots, rid) { return 150 + 8 * plots + travelCost(S, rid); }
+  function permitWeeks(S, rid) { var R = regOf(rid), w = R.permit; if (S.upg.rahmen && R.np) w = 0; if (ortsLevel(S, rid) >= 2) w -= 1; return Math.max(0, w); }
+  function regQual(S, rid) { return (regEq(S, rid, 'logger') ? 0.05 : 0) + (ortsLevel(S, rid) >= 4 ? 0.03 : 0); }
+  function regUnlockCost(S, rid) { var U = regOf(rid).unlock; return U ? Math.round(U.cost * (hasTalent(S, 'ortskunde') ? 0.7 : 1) / 100) * 100 : 0; }
+  function regionBlock(S, rid) {
+    var R = REGM[rid];
+    if (!R) return 'Unbekannt.';
+    if (regOpen(S, rid)) return 'Schon erschlossen.';
+    var U = R.unlock || {};
+    if (U.career && S.career < U.career) return 'Ab ' + CAREER[U.career].name + '.';
+    if (U.rep && S.rep < U.rep) return 'Braucht ' + U.rep + ' Renommee.';
+    if (S.money < regUnlockCost(S, rid)) return 'Nicht genug Geld.';
+    return null;
+  }
+  function openRegion(S, rid, ev) {
+    var b = regionBlock(S, rid);
+    if (b) return b;
+    var R = REGM[rid];
+    pay(S, regUnlockCost(S, rid));
+    regState(S, rid).open = true;
+    S.admin += 2;
+    log(S, ev, 'feld', 'Neues Feldgebiet: ' + R.name + ' (' + R.area + '). Erkundungsfahrt gemacht, Kontakte vor Ort geknüpft.', { good: true });
+    chron(S, 'Neues Feldgebiet: ' + R.name);
+    unlock(S, ev, 'neuland');
+    if (REGIONS.every(function (x) { return regOpen(S, x.id); })) unlock(S, ev, 'entdecker');
+    return null;
+  }
+  function reqCost(S, rid, eid) { return Math.round(REQM[eid].cost * regOf(rid).travel / 100) * 100; }
+  function reqBlock(S, rid, eid) {
+    var E = REQM[eid];
+    if (!E || !REGM[rid]) return 'Unbekannt.';
+    if (!regOpen(S, rid)) return 'Gebiet noch nicht erschlossen.';
+    if (regEq(S, rid, eid)) return 'Vorhanden.';
+    if (eid === 'quartier' && REGM[rid].travel <= 1 && !REGM[rid].cost) return 'Nicht nötig, das Gebiet liegt vor der Tür.';
+    if (E.needs && !regEq(S, rid, E.needs)) return 'Braucht ' + REQM[E.needs].name + '.';
+    if (E.lvl && ortsLevel(S, rid) < E.lvl) return 'Ab Ortskenntnis »' + ORTS[E.lvl].name + '«.';
+    if (E.rep && S.rep < E.rep) return 'Braucht ' + E.rep + ' Renommee.';
+    if (S.money < reqCost(S, rid, eid)) return 'Nicht genug Geld.';
+    return null;
+  }
+  function buyReq(S, rid, eid, ev) {
+    var b = reqBlock(S, rid, eid);
+    if (b) return b;
+    var R = REGM[rid], E = REQM[eid];
+    pay(S, reqCost(S, rid, eid));
+    regState(S, rid).eq[eid] = S.week;
+    S.admin += 1;
+    log(S, ev, 'bau', R.name + ': ' + E.name + '.');
+    if (eid === 'logger') addYear(S, rid, ev);
+    return null;
+  }
+  function addYear(S, rid, ev) {
+    var rs = regState(S, rid), y = cal(S).year;
+    if (rs.years.indexOf(y) >= 0) return;
+    rs.years.push(y);
+    var n = rs.years.length, R = REGM[rid];
+    if (n - rs.synth === 5) log(S, ev, 'feld', 'Langzeitreihe ' + R.name + ': ' + n + ' Datenjahre. Genug für eine Langzeitsynthese.', { good: true });
+    if (n === 5 || n === 10 || n === 20) chron(S, R.name + ': ' + n + ' Datenjahre');
+    if (n >= 10) unlock(S, ev, 'reihe10');
+  }
+  function regionXp(S, rid, x, ev) {
+    var rs = regState(S, rid), before = ortsLevel(S, rid);
+    rs.xp += x * (hasTalent(S, 'ortskunde') ? 1.5 : 1);
+    var after = ortsLevel(S, rid);
+    if (after <= before) return;
+    S.stats.regUps += 1;
+    log(S, ev, 'feld', REGM[rid].name + ': Ortskenntnis jetzt »' + ORTS[after].name + '«. ' + ORTS[after].desc, { good: true });
+    if (after >= 2) chron(S, REGM[rid].name + ': Ortskenntnis »' + ORTS[after].name + '«');
+    if (after >= 3) unlock(S, ev, 'heimisch');
+    if (after >= 5) unlock(S, ev, 'legende');
+  }
+  function regionCampaign(S, rid, ok, params, ev) {
+    var rs = regState(S, rid);
+    if (!ok) { rs.fails += 1; regionXp(S, rid, 0.5, ev); return; }
+    rs.camps += 1;
+    params.forEach(function (p) { rs.pn[p] = (rs.pn[p] || 0) + 1; });
+    if (regEq(S, rid, 'plots')) addYear(S, rid, ev);
+    if (ortsLevel(S, rid) >= 5) addRep(S, 2 + S.career);
+    regionXp(S, rid, S.act === 'feld' ? 1.25 : 1, ev);
+  }
+  function regionsWeekly(S, ev) {
+    REGIONS.forEach(function (R) { var rs = regState(S, R.id); if (rs.open && rs.eq.logger) addYear(S, R.id, ev); });
+  }
+  function regionPlanBlock(S, qid, rid) {
+    var R = REGM[rid], Q = QM[qid];
+    if (!R) return 'Wähle ein Feldgebiet.';
+    if (!regOpen(S, rid)) return R.name + ' ist noch nicht erschlossen.';
+    if (Q && Q.regions && Q.regions.indexOf(rid) < 0) return Q.title + ' geht nur hier: ' + Q.regions.map(function (x) { return REGM[x].name; }).join(', ') + '.';
+    return null;
+  }
+  function bestRegion(S, qid) {
+    var best = null, bv = -1;
+    REGIONS.forEach(function (R) {
+      if (regionPlanBlock(S, qid, R.id)) return;
+      var v = questionNovelty(S, qid, R.id) / Math.sqrt(prepFactor(S, R.id)) - travelCost(S, R.id) / 4000;
+      if (v > bv) { bv = v; best = R.id; }
+    });
+    return best || 'hallig';
+  }
+  function synthBlock(S, rid) {
+    if (!regOpen(S, rid)) return 'Gebiet noch nicht erschlossen.';
+    var rs = regState(S, rid), n = rs.years.length - rs.synth;
+    if (S.studies.some(function (st) { return st.synthReg === rid && st.phase !== 'done'; })) return 'Wird gerade ausgewertet.';
+    if (n < 5) return 'Ab fünf neuen Datenjahren (' + n + ' von 5).';
+    return null;
+  }
+  function startSynthesis(S, rid, ev) {
+    var b = synthBlock(S, rid);
+    if (b) return b;
+    var R = REGM[rid], rs = regState(S, rid), ys = rs.years.slice().sort(function (a, c) { return a - c; }), n = ys.length - rs.synth, used = ys.slice(rs.synth);
+    var params = Object.keys(rs.pn).filter(function (p) { return PARAMM[p]; }).sort(function (a, c) { return rs.pn[c] - rs.pn[a]; }).slice(0, 4);
+    if (!params.length) params = ['veg', 'bd'];
+    var k = Math.min(10, n);
+    var st = { id: nid(S, 'st'), qid: 'synth', no: 1, title: 'Langzeitreihe ' + R.name + ' ' + used[0] + '–' + used[used.length - 1], ask: 'Wie hat sich die Salzwiese in ' + n + ' Jahren verändert?',
+      groups: ['frühe Jahre', 'späte Jahre'], en: 'Long-term change', novelty: 1.2 + 0.03 * k, topic: R.topic, synth: true, synthReg: rid, reg: rid,
+      n: 6, plots: 12, k: k, params: params, lead: 'pi', prio: S.studies.length, phase: 'analysis', model: 'mixed', noise: 1, created: S.week, permitW: 0,
+      camp: { done: k, prep: 0, need: 0, base: 0, ready: false, next: 0 }, comp: [], fq: [], q: {}, ext: [], truth: {}, cost: 0, findings: null };
+    params.forEach(function (p) {
+      var real = rnd() < 0.8;
+      st.truth[p] = { real: real, d: real ? clamp(0.85 + 0.3 * gauss(), 0.4, 1.6) : 0, z: gauss() * 0.8, dir: rnd() < 0.5 ? 1 : -1 };
+      st.q[p] = { b: [], done: 19, lost: 0, total: 20, mqSum: 0.95 * 19, mqN: 19 };
+    });
+    rs.synth += n;
+    S.studies.push(st);
+    startAnalysis(S, st, 'mixed');
+    S.stats.synth += 1;
+    log(S, ev, 'studie', 'Langzeitsynthese gestartet: ' + n + ' Jahre Daten aus ' + R.name + '. Die Auswertung liegt auf dem Schreibtisch.', { good: true });
+    chron(S, 'Langzeitsynthese ' + R.name + ' (' + n + ' Jahre)');
+    return null;
+  }
+  function longMult(S, st) { return !st.reg || st.synth || st.diss ? 1 : 1 + 0.01 * Math.min(10, regState(S, st.reg).years.length); }
+
+  /* ---------- Profil der Gruppenleitung ---------- */
+  function piXpNeed(lv) { return 18 + 9 * lv; }
+  function piGain(S, k, w, ev) {
+    var pi = S.pi;
+    if (!pi || pi.sk[k] == null || pi.sk[k] >= PI_MAX) return;
+    pi.xp[k] = (pi.xp[k] || 0) + w / piXpNeed(pi.sk[k]);
+    if (pi.xp[k] < 1) return;
+    pi.xp[k] = 0; pi.sk[k] += 1; S.stats.piUps += 1;
+    log(S, ev, 'team', 'Du hast dazugelernt: ' + PI_SKILL_NAME[k] + ' jetzt ' + pi.sk[k] + '.', { good: true });
+    if (pi.sk[k] >= 6) unlock(S, ev, 'profil');
+  }
+  function piWeekly(S, ev) {
+    if (!S.pi || S.piAway > 0) return;
+    var c = cal(S), g = {}, mods = c.lecture ? offeredModules(S).length : 0;
+    if (S.act === 'feld') g.feld = 1;
+    else if (S.act === 'labor') g.labor = 1;
+    else if (S.act === 'buero') { g.schreiben = 0.6; g.stat = 0.6; }
+    else if (S.act === 'verwaltung') g.mgmt = 1;
+    else if (S.act === 'konf') g.schreiben = 0.3;
+    if (mods) g.lehre = 0.25 * mods;
+    if (S.staff.length >= 3) g.mgmt = (g.mgmt || 0) + 0.15;
+    Object.keys(g).forEach(function (k) { piGain(S, k, g[k], ev); });
+  }
+  function setSpec(S, id) {
+    var sp = SPECM[id];
+    if (!sp) return 'Unbekannt.';
+    if (S.pi.spec) return 'Der Schwerpunkt steht schon fest.';
+    S.pi.spec = id; S.pi.sk[sp.sk] = Math.min(PI_MAX, S.pi.sk[sp.sk] + 1);
+    invalidate(S);
+    return null;
+  }
+  function spendPoint(S, k) {
+    var pi = S.pi;
+    if (!pi || pi.sk[k] == null) return 'Unbekannt.';
+    if (pi.pts <= 0) return 'Keine Punkte frei.';
+    if (pi.sk[k] >= PI_MAX) return 'Schon auf höchster Stufe.';
+    pi.sk[k] += 1; pi.pts -= 1; pi.xp[k] = 0;
+    if (pi.sk[k] >= 6) unlock(S, null, 'profil');
+    return null;
+  }
+  function talentBlock(S, id) {
+    if (!TALM[id]) return 'Unbekannt.';
+    if (hasTalent(S, id)) return 'Schon gewählt.';
+    if (!S.pi || S.pi.picks <= 0) return 'Kein Talent frei.';
+    return null;
+  }
+  function pickTalent(S, id) {
+    var b = talentBlock(S, id);
+    if (b) return b;
+    S.pi.talents.push(id); S.pi.picks -= 1;
+    invalidate(S);
+    return null;
+  }
+  // Charaktererstellung: Schwerpunkt, bis zu drei Punkte (höchstens zwei je Fähigkeit), ein Talent, Spieltempo
+  function createProfile(S, o) {
+    var pi = newPi(), sp = SPECM[o.spec] || SPECM.bgc, add = o.add || {}, used = 0;
+    pi.spec = sp.id; pi.sk[sp.sk] += 1;
+    PI_SKILLS.forEach(function (k) { var a = Math.max(0, Math.min(2, Math.floor(+add[k] || 0))); used += a; pi.sk[k] += a; });
+    if (used > 3) return 'Höchstens drei Punkte.';
+    pi.pts = 3 - used;
+    if (o.talent && TALM[o.talent]) { pi.talents.push(o.talent); pi.picks = 0; }
+    S.pi = pi;
+    if (o.tempo) setTempo(S, o.tempo);
+    invalidate(S);
+    return null;
+  }
+
   /* Feldtermin */
-  function forecast(S) {
-    var c = cal(S);
+  function forecast(S, rid) {
+    var c = cal(S), R = regOf(rid);
     var dl = DAYLIGHT[c.month - 1];
-    var lw0 = rr(0, 12.42);
+    var lw0 = (rr(0, 12.42) + (R.lw || 0) + 12.42) % 12.42;
     var winter = c.season < 1;
+    var noise = regEq(S, R.id, 'pegel') ? 0 : ortsLevel(S, R.id) >= 3 ? 0.5 : 1;
     var days = [];
     for (var i = 0; i < 5; i++) {
       var a = (lw0 + i * 0.84) % 12.42;
-      var lws = [a, a + 12.42].filter(function (x) { return x < 24; });
-      var wind = clamp(Math.round(rr(2, 6) + (winter ? 1.5 : 0) + gauss() * 1.1), 1, 10);
+      var lws = R.notide ? [] : [a, a + 12.42].filter(function (x) { return x < 24; });
+      var wind = clamp(Math.round(rr(2, 6) + (winter ? 1.5 : 0) + (R.wind || 0) + gauss() * 1.1), 1, 10);
       var rain = clamp(Math.round((rr(0, 70) + (winter ? 15 : 0)) / 10) * 10, 0, 90);
-      days.push({ wd: WD[i], lws: lws, wind: wind, rain: rain, surge: wind >= 8 && rnd() < 0.55, dir: pick(['W', 'NW', 'SW', 'N', 'O', 'S']) });
+      var surge = wind >= 8 && rnd() < 0.55 * (R.surge || 1);
+      var day = { wd: WD[i], lws: lws, wind: wind, rain: rain, surge: surge, dir: pick(['W', 'NW', 'SW', 'N', 'O', 'S']), nt: !!R.notide };
+      if (noise) {
+        var aw = clamp(wind + Math.round(gauss() * 0.9 * noise), 1, 10);
+        day.act = { wind: aw, rain: clamp(rain + Math.round(gauss() * 1.6 * noise) * 10, 0, 100), surge: aw >= 8 ? (surge || rnd() < 0.35 * (R.surge || 1)) : (surge && aw >= 7) };
+      }
+      days.push(day);
     }
-    return { dl: dl, days: days };
+    return { dl: dl, days: days, reg: R.id, exact: !noise };
   }
-  function dayScore(S, day, dl) {
-    if (day.surge) return { comp: 0, q: 0, tide: 0, wind: 0, rain: 0, why: 'Sturmflut: Die Flächen stehen unter Wasser.' };
-    var tide = 0.3;
-    day.lws.forEach(function (lw) {
-      if (lw >= dl[0] + 1.5 && lw <= dl[1] - 1.5) tide = Math.max(tide, 1);
-      else if (lw >= dl[0] && lw <= dl[1]) tide = Math.max(tide, 0.65);
-    });
-    tide = Math.min(1, tide + fx(S).tide);
-    var wind = day.wind <= 4 ? 1 : day.wind === 5 ? 0.9 : day.wind === 6 ? 0.75 : day.wind === 7 ? 0.5 : 0.15;
-    var rain = 1 - 0.45 * day.rain / 100;
+  function dayScore(S, day, dl, rid, actual) {
+    var w = actual && day.act ? day.act : day;
+    if (w.surge) return { comp: 0, q: 0, tide: 0, wind: 0, rain: 0, why: day.nt ? 'Hochwasser: Der Wind hat die Ostsee in die Wiesen gedrückt.' : 'Sturmflut: Die Flächen stehen unter Wasser.' };
+    var tide = 0.92;
+    if (!day.nt) {
+      tide = 0.3;
+      day.lws.forEach(function (lw) {
+        if (lw >= dl[0] + 1.5 && lw <= dl[1] - 1.5) tide = Math.max(tide, 1);
+        else if (lw >= dl[0] && lw <= dl[1]) tide = Math.max(tide, 0.65);
+      });
+    }
+    tide = Math.min(1, tide + fx(S).tide + (hasTalent(S, 'gezeiten') ? 0.1 : 0));
+    var wind = w.wind <= 4 ? 1 : w.wind === 5 ? 0.9 : w.wind === 6 ? 0.75 : w.wind === 7 ? 0.5 : 0.15;
+    var rain = 1 - 0.45 * w.rain / 100;
     var base = tide * wind * rain;
-    var comp = clamp(0.3 + 0.7 * base, 0, 1);
-    return { comp: Math.round(comp * 100) / 100, q: 0.85 + 0.15 * tide * wind, tide: tide, wind: wind, rain: rain,
-      why: tide < 0.6 ? 'Niedrigwasser nur in der Dunkelheit.' : wind < 0.6 ? 'Zu viel Wind für die Wattflächen.' : rain < 0.7 ? 'Dauerregen verdirbt Proben und Laune.' : '' };
+    var comp = clamp(0.3 + 0.7 * base + (rid && ortsLevel(S, rid) >= 2 ? 0.04 : 0), 0, 1);
+    return { comp: Math.round(comp * 100) / 100, q: Math.min(1, 0.85 + 0.15 * tide * wind + (rid ? regQual(S, rid) : 0)), tide: tide, wind: wind, rain: rain,
+      why: tide < 0.6 ? 'Niedrigwasser nur in der Dunkelheit.' : wind < 0.6 ? (day.nt ? 'Zu viel Wind: Das Wasser steht hoch in den Wiesen.' : 'Zu viel Wind für die Wattflächen.') : rain < 0.7 ? 'Dauerregen verdirbt Proben und Laune.' : '' };
   }
   function bestDay(S, fc) {
     var best = 0, bv = -1;
-    fc.days.forEach(function (d, i) { var v = dayScore(S, d, fc.dl).comp; if (v > bv) { bv = v; best = i; } });
+    fc.days.forEach(function (d, i) { var v = dayScore(S, d, fc.dl, fc.reg).comp; if (v > bv) { bv = v; best = i; } });
     return best;
   }
-  function teamPicksWell(S, lead) {
-    if (S.staff.some(function (p) { return p.trait === 'tide'; })) return 1;
-    return lead && lead !== 'pi' ? clamp(0.35 + 0.12 * leadSkill(S, lead, 'feld'), 0, 0.9) : 0.6;
+  function teamPicksWell(S, lead, rid) {
+    if (S.staff.some(function (p) { return hasTrait(p, 'tide'); })) return 1;
+    var b = lead && lead !== 'pi' ? clamp(0.35 + 0.12 * leadSkill(S, lead, 'feld'), 0, 0.9) : (hasTalent(S, 'gezeiten') ? 0.95 : 0.6);
+    if (rid) {
+      if (ortsLevel(S, rid) >= 3) b = Math.min(0.95, b + 0.1);
+      if (regEq(S, rid, 'partner')) b = Math.max(b, 0.9);
+    }
+    return b;
   }
   function autoDay(S, fc, lead) {
-    if (rnd() < teamPicksWell(S, lead)) return bestDay(S, fc);
-    var ok = fc.days.map(function (d, i) { return [i, dayScore(S, d, fc.dl).comp]; }).filter(function (x) { return x[1] > 0; });
+    if (rnd() < teamPicksWell(S, lead, fc.reg)) return bestDay(S, fc);
+    var ok = fc.days.map(function (d, i) { return [i, dayScore(S, d, fc.dl, fc.reg).comp]; }).filter(function (x) { return x[1] > 0; });
     return ok.length ? pick(ok)[0] : 0;
   }
-  function campaignCost(plots) { return 150 + 8 * plots; }
   function resolveTermin(S, d, day, ev, auto) {
     var x = d.data.extra ? S.extra.filter(function (e) { return e.id === d.ref; })[0] : null;
     var st = x ? study(S, x.sid) : study(S, d.ref);
     dropDecision(S, d);
     if (!st) return null;
-    var fc = d.data.fc;
+    var fc = d.data.fc, rid = st.reg || fc.reg || 'hallig', R = regOf(rid);
     var idx = day != null ? +day : autoDay(S, fc, st.lead);
-    var sc = dayScore(S, fc.days[idx], fc.dl);
-    var plots = x ? x.plots : st.plots;
+    var sc = dayScore(S, fc.days[idx], fc.dl, rid, true), fsc = dayScore(S, fc.days[idx], fc.dl, rid, false);
+    sc.dev = fc.days[idx].act ? sc.comp - fsc.comp : 0; sc.reg = rid;
+    var wx = sc.dev <= -0.12 ? ' Das Wetter hielt sich nicht an die Vorhersage.' : sc.dev >= 0.12 ? ' Besser als angesagt.' : '';
+    var plots = x ? x.plots : st.plots, params = x ? x.params : st.params;
     if (sc.comp < 0.4) {
       if (x) { x.fieldDone = x.fieldNeed * 0.5; x.ready = false; x.next = S.week + 1; }
       else { st.camp.prep = st.camp.need * 0.5; st.camp.ready = false; st.camp.next = S.week + 1; }
-      pay(S, Math.round(campaignCost(plots) * 0.3));
+      pay(S, Math.round(campaignCost(S, plots, rid) * 0.3));
       S.stats.failed += 1;
-      log(S, ev, 'feld', 'Feldtermin am ' + fc.days[idx].wd + ' abgebrochen: ' + (sc.why || 'Die Bedingungen waren zu schlecht.') + (auto ? ' (Das Team hatte entschieden.)' : ''), { bad: true });
+      regionCampaign(S, rid, false, params, ev);
+      log(S, ev, 'feld', R.name + ': Feldtermin am ' + fc.days[idx].wd + ' abgebrochen. ' + (sc.why || 'Die Bedingungen waren zu schlecht.') + wx + (auto ? ' (Das Team hatte entschieden.)' : ''), { bad: true });
       return sc;
     }
-    pay(S, campaignCost(plots));
+    pay(S, campaignCost(S, plots, rid));
     if (sc.comp >= 0.999) unlock(S, ev, 'termin');
     S.stats.campaigns += 1;
-    var params = x ? x.params : st.params;
     params.forEach(function (p) {
       var P = PARAMM[p], full = plots * (P.per || 1), n = Math.round(full * sc.comp);
       S.stats.samples += n;
@@ -1601,11 +1985,13 @@ var PPP = (function () {
         addSamples(S, st, p, n, sc.q);
       }
     });
-    var msg = 'Feldtermin am ' + fc.days[idx].wd + ': ' + Math.round(sc.comp * 100) + ' % der Plots beprobt' + (sc.why ? '. ' + sc.why : '.') + (auto ? ' (Das Team hatte entschieden.)' : '');
+    regionCampaign(S, rid, true, params, ev);
+    var msg = R.name + ', Feldtermin am ' + fc.days[idx].wd + ': ' + Math.round(sc.comp * 100) + ' % der Plots beprobt' + (sc.why ? '. ' + sc.why : '.') + wx + (auto ? ' (Das Team hatte entschieden.)' : '');
     if (x) { x.fieldDone = x.fieldNeed; x.ready = false; x.sampled = true; }
     else {
       st.camp.done += 1; st.comp.push(sc.comp); st.fq.push(sc.q);
       st.camp.prep = 0; st.camp.ready = false; st.camp.next = S.week + 6;
+      if (st.camp.base) st.camp.need = Math.round(st.camp.base * prepFactor(S, rid));
       if (st.camp.done >= st.k) st.phase = 'lab';
       msg = st.title + ', Kampagne ' + st.camp.done + ' von ' + st.k + ': ' + msg;
     }
@@ -1616,18 +2002,19 @@ var PPP = (function () {
   function fieldStep(S, hours, ev) {
     S.stats.hField += hours;
     S.extra.forEach(function (x) {
-      if (hours <= 0 || x.sampled || x.ready || !campaignOpen(S, x.params, x.next || 0)) return;
+      var xs = study(S, x.sid), xr = xs && xs.reg ? xs.reg : 'hallig';
+      if (hours <= 0 || x.sampled || x.ready || !campaignOpen(S, x.params, x.next || 0, xr)) return;
       var use = Math.min(hours, x.fieldNeed - x.fieldDone);
       x.fieldDone += use; hours -= use;
-      if (x.fieldDone >= x.fieldNeed - 1e-9) { x.ready = true; addDecision(S, ev, 'termin', x.id, 1, { fc: forecast(S), extra: true }); }
+      if (x.fieldDone >= x.fieldNeed - 1e-9) { x.ready = true; addDecision(S, ev, 'termin', x.id, 1, { fc: forecast(S, xr), extra: true }); }
     });
     byPrio(S).forEach(function (st) {
       if (hours <= 0 || st.phase !== 'field' || st.camp.ready || st.camp.done >= st.k) return;
       if (st.qid === 'warm' && S.warmBroken > 0) return;
-      if (!campaignOpen(S, st.params, st.camp.next)) return;
+      if (!campaignOpen(S, st.params, st.camp.next, st.reg)) return;
       var use = Math.min(hours, st.camp.need - st.camp.prep);
       st.camp.prep += use; hours -= use;
-      if (st.camp.prep >= st.camp.need - 1e-9) { st.camp.ready = true; addDecision(S, ev, 'termin', st.id, 1, { fc: forecast(S) }); }
+      if (st.camp.prep >= st.camp.need - 1e-9) { st.camp.ready = true; addDecision(S, ev, 'termin', st.id, 1, { fc: forecast(S, st.reg) }); }
     });
   }
 
@@ -1726,6 +2113,7 @@ var PPP = (function () {
     S.stats.studies += 1;
     var sig = st.findings.filter(function (f) { return f.sig; }).length;
     log(S, ev, 'studie', st.title + ' ausgewertet: ' + sig + ' von ' + st.findings.length + ' Befunden signifikant.', { good: sig > 0 });
+    if (st.synth) unlock(S, ev, 'synthese');
     addDecision(S, ev, 'story', st.id, 3, {});
   }
 
@@ -1739,7 +2127,8 @@ var PPP = (function () {
     if (!main) return 0;
     var v = findingValue(main) + 0.45 * plan.sup.reduce(function (a, i) { return a + findingValue(st.findings[i]); }, 0);
     var nF = st.n >= 6 ? 1 : st.n >= 4 ? 0.94 : 0.85;
-    return st.novelty * v * FRAMES[plan.framing].f * (0.9 + 0.05 * leadSkill(S, st.lead, 'schreiben')) * nF * (1 + 0.04 * S.career) * (1 + 0.004 * alumniScore(S));
+    return st.novelty * v * FRAMES[plan.framing].f * (0.9 + 0.05 * leadSkill(S, st.lead, 'schreiben')) * nF * (1 + 0.04 * S.career) * (1 + 0.004 * alumniScore(S)) *
+      (1 + 0.015 * expertLevel(S, st.topic)) * specMult(S, st.qid) * (hasTalent(S, 'feder') ? 1.05 : 1) * longMult(S, st);
   }
   function storyFlaws(S, st, plan) {
     var main = st.findings[plan.main];
@@ -1753,7 +2142,7 @@ var PPP = (function () {
   function storyTitle(S, st, plan) {
     var main = st.findings[plan.main], P = PARAMM[main.param];
     var tail = plan.sup.length ? ' and ' + PARAMM[st.findings[plan.sup[0]].param].en : '';
-    var ctx = pick(CONTEXT), t;
+    var R = st.reg ? REGM[st.reg] : null, ctx = R && rnd() < 0.85 ? R.en : pick(CONTEXT), t;
     if (!main.sig) t = 'No detectable effect of ' + lcFirst(st.en) + ' on ' + P.en + ' ' + ctx;
     else if (plan.framing === 'vorsichtig') t = 'Effects of ' + lcFirst(st.en) + ' on ' + P.en + tail + ' ' + ctx;
     else t = st.en + ' ' + pick(main.dir > 0 ? VERB_UP : VERB_DOWN) + ' ' + P.en + tail + ' ' + ctx;
@@ -1796,7 +2185,7 @@ var PPP = (function () {
     var snap = function (i) { var f = st.findings[i]; return { param: f.param, sig: f.sig, p: f.p, eff: f.eff, real: f.real, mq: f.mq, dir: f.dir }; };
     var m = { id: nid(S, 'ms'), sid: sid, title: storyTitle(S, st, plan), plan: { main: plan.main, sup: plan.sup.slice(), framing: plan.framing },
       main: snap(plan.main), sup: plan.sup.map(snap), Q: Q, flaws: storyFlaws(S, st, plan), status: 'writing', tried: [], round: 0, j: null,
-      authors: authorsFor(S, st), leadId: st.lead, topic: st.topic, comments: [], score: 0, rev: null };
+      authors: authorsFor(S, st), leadId: st.lead, topic: st.topic, reg: st.reg || null, comments: [], score: 0, rev: null };
     st.findings[plan.main].used = true;
     plan.sup.forEach(function (i) { st.findings[i].used = true; });
     S.manus.push(m);
@@ -2011,11 +2400,11 @@ var PPP = (function () {
     var st = study(S, m.sid);
     if (!st) { var pp = project(S, projId); if (pp) pp.status = 'writing'; return; }
     var params = [m.main.param].concat(m.sup.map(function (s) { return s.param; }));
-    var plots = kind === 'resample' ? Math.ceil(st.plots * 0.5) : st.plots;
+    var plots = kind === 'resample' ? Math.ceil(st.plots * 0.5) : st.plots, pf = prepFactor(S, st.reg || 'hallig');
     var lab = {};
     params.forEach(function (p) { var P = PARAMM[p]; if (P.inst && P.inst !== 'extern') lab[p] = { b: [], done: 0, lost: 0, total: 0, mqSum: 0, mqN: 0 }; });
     S.extra.push({ id: nid(S, 'x'), mid: m.id, proj: projId, sid: st.id, kind: kind, plots: plots, params: params,
-      fieldNeed: 10 + plots * params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0), fieldDone: 0, ready: false, sampled: false, next: S.week, lab: lab, extAt: null });
+      fieldNeed: Math.round((10 + plots * params.reduce(function (a, p) { return a + PARAMM[p].field; }, 0)) * pf), fieldDone: 0, ready: false, sampled: false, next: S.week, lab: lab, extAt: null });
     log(S, ev, 'feld', (kind === 'campaign' ? 'Eine weitere Kampagne' : 'Zusätzliche Plots') + ' für »' + m.title + '« ist geplant.' + (campaignWindow(params) ? ' Gemessen wird in der passenden Jahreszeit.' : ''));
   }
   function completeRevision(S, p, ev) {
@@ -2050,16 +2439,24 @@ var PPP = (function () {
     var c = cal(S);
     S.papers.push({ id: m.id, title: m.title, j: j.id, q: m.Q, topic: m.topic, t: S.t, y: c.year,
       cmax: 4 * Math.pow(j.IF, 0.8) * Math.sqrt(Math.max(0.1, m.Q)) * luck * (j.predatory ? 0.1 : 1) * (m.plan.framing === 'zugespitzt' ? 1.15 : 1),
-      authors: m.authors, vol: ri(8, 64), pg: ri(1, 900) });
+      authors: m.authors, vol: ri(8, 64), pg: ri(1, 900), reg: m.reg || null });
     S.manus = S.manus.filter(function (x) { return x !== m; });
     S.stats.papers += 1;
+    var ex0 = expertLevel(S, m.topic);
     S.topicPubs[m.topic] = (S.topicPubs[m.topic] || 0) + 1;
+    var ex1 = expertLevel(S, m.topic);
+    if (m.reg) regState(S, m.reg).papers += 1;
+    if (ex1 > ex0 && ex1 >= 2) log(S, ev, 'karriere', 'Forschungsprofil: Beim Thema ' + (TOPIC_NAME[m.topic] || m.topic) + ' bist du jetzt »' + EXPERT[ex1].name + '«. Manuskripte dazu werden stärker.', { good: true });
+    if (ex1 >= 5) unlock(S, ev, 'koryphae');
+    if (S.pi && S.stats.papers % 10 === 0) { S.pi.pts += 1; log(S, ev, 'karriere', S.stats.papers + ' Publikationen: ein Fähigkeitspunkt für dein Profil.', { good: true }); }
+    if (S.stats.papers === 1) chron(S, 'Erste Publikation: ' + m.title);
+    else if (S.stats.papers === 10 || S.stats.papers === 50 || S.stats.papers === 100) chron(S, S.stats.papers + '. Publikation');
     var lead = m.leadId && m.leadId !== 'pi' ? person(S, m.leadId) : null;
     if (lead) lead.pub += 1;
     if (j.predatory) { addRep(S, -25); S.karma = Math.max(0, S.karma - 3); unlock(S, ev, 'raub'); }
     else addRep(S, 6 * Math.sqrt(j.IF) * Math.sqrt(Math.max(0.1, m.Q)));
     unlock(S, ev, 'paper1');
-    if (j.id === 'natura') unlock(S, ev, 'natura');
+    if (j.id === 'natura') { unlock(S, ev, 'natura'); chron(S, 'Titelgeschichte in Natura'); }
     if (m.r2) unlock(S, ev, 'rev2');
     if (m.flaws.nullMain) { S.stats.nulls += 1; unlock(S, ev, 'null'); }
     if (S.papers.length > 400) archivePapers(S);
@@ -2150,7 +2547,7 @@ var PPP = (function () {
       S.admin += 3;
       log(S, ev, 'antrag', G.name + ' eingereicht. Entscheidung in etwa ' + G.review + ' Wochen.');
     } else if (p.type === 'lecture') {
-      var q = clamp(0.5 + 0.08 * piSkill(S) + fx(S).teach + rr(-0.06, 0.06), 0.3, 1.6);
+      var q = clamp(0.5 + 0.08 * piSk(S, 'lehre') + fx(S).teach + (hasTalent(S, 'didaktik') ? 0.15 : 0) + rr(-0.06, 0.06), 0.3, 1.6);
       S.modules[p.mod] = { q: q, offered: true, last: null, held: 0 };
       log(S, ev, 'lehre', 'Lehrveranstaltung fertig: ' + MODM[p.mod].name + '. Sie wird ab sofort angeboten.');
     } else if (p.type === 'relecture') {
@@ -2175,7 +2572,7 @@ var PPP = (function () {
     if (r.rep && S.rep < r.rep) return 'Braucht ' + r.rep + ' Renommee.';
     return null;
   }
-  function grantHours(S, g) { return Math.round(GRANTM[g].hours * ((S.grantResub[g] || 0) > 0 ? 0.6 : 1)); }
+  function grantHours(S, g) { return Math.round(GRANTM[g].hours * ((S.grantResub[g] || 0) > 0 ? 0.6 : 1) * (hasTalent(S, 'antrag') ? 0.85 : 1)); }
   function grantTopics(S) {
     var t = {};
     Object.keys(S.topicPubs).forEach(function (k) { t[k] = 1; });
@@ -2187,7 +2584,7 @@ var PPP = (function () {
     var pre = Math.min(0.2, 0.05 * (S.topicPubs[topic] || 0));
     var post = 0.03 * Math.min(2, S.staff.filter(function (p) { return p.role === 'postdoc'; }).length);
     var koord = S.staff.some(function (p) { return p.role === 'koord'; }) ? 0.04 : 0;
-    var p = G.p0 + G.ph * Math.max(0, h - (G.req.h || 0)) + 0.06 * res + pre + post + koord + (S.grantRep[g] || 0) + Math.min(0.08, S.rep / 25000) + 0.003 * alumniScore(S);
+    var p = G.p0 + G.ph * Math.max(0, h - (G.req.h || 0)) + 0.06 * res + pre + post + koord + (S.grantRep[g] || 0) + Math.min(0.08, S.rep / 25000) + 0.003 * alumniScore(S) + (hasTalent(S, 'antrag') ? 0.05 : 0);
     return clamp(p, 0.03, g === 'uni' ? 0.9 : 0.8);
   }
   function newGrant(S, g, topic, ev) {
@@ -2226,7 +2623,8 @@ var PPP = (function () {
     if (!r) return 'Anfrage abgelaufen.';
     if (RECS.indexOf(rec) < 0) return 'Wähle eine Empfehlung.';
     S.reviews = S.reviews.filter(function (x) { return x !== r; });
-    var p = { id: nid(S, 'p'), type: 'review', j: r.j, rec: rec, truth: r.rec, title: 'Gutachten für ' + JOURM[r.j].name, need: r.need, done: 0, rep: r.rep, status: 'writing' };
+    var gt = hasTalent(S, 'gutachter');
+    var p = { id: nid(S, 'p'), type: 'review', j: r.j, rec: rec, truth: r.rec, title: 'Gutachten für ' + JOURM[r.j].name, need: Math.round(r.need * (gt ? 0.7 : 1)), done: 0, rep: r.rep * (gt ? 1.25 : 1), status: 'writing' };
     addProject(S, p);
     return null;
   }
@@ -2283,12 +2681,12 @@ var PPP = (function () {
     if (s.type === 'MSc' && g <= 2.0 && rnd() < (s.inhouse ? 0.9 : 0.75)) {
       S.cands.unshift({ id: nid(S, 'c'), role: 'phd', g: s.g, name: s.name, internal: true, exp: S.week + 16, path: path,
         sk: { feld: clamp(s.sk.feld + 1, 1, 5), labor: clamp(s.sk.labor + 1, 1, 5), stat: ksk.stat != null ? clamp(ksk.stat + 1, 1, 5) : ri(2, 3), schreiben: ksk.schreiben != null ? clamp(ksk.schreiben + 1, 1, 5) : ri(2, 3) },
-        trait: keep.trait || (rnd() < 0.6 ? pick(TRAITS).id : null) });
+        trait: keep.trait || (rnd() < 0.6 ? pick(TRAITS).id : null), perks: (keep.perks || []).slice() });
       log(S, ev, 'team', s.name + ' möchte bei dir promovieren. Die Bewerbung liegt im Team-Bereich.', { good: true });
     } else if (s.type === 'BSc' && g <= 2.3 && rnd() < 0.55) {
       S.cands.unshift({ id: nid(S, 'c'), role: 'hiwi', g: s.g, name: s.name, internal: true, exp: S.week + 16, path: path,
         sk: { feld: clamp(s.sk.feld + (s.st === 'feld' ? 1 : 0), 1, 5), labor: clamp(s.sk.labor + (s.st === 'labor' ? 1 : 0), 1, 5), stat: ksk.stat != null ? ksk.stat : ri(0, 1), schreiben: ksk.schreiben != null ? ksk.schreiben : ri(0, 1) },
-        trait: keep.trait || null });
+        trait: keep.trait || null, perks: (keep.perks || []).slice() });
       log(S, ev, 'team', s.name + ' möchte als Hiwi weitermachen und später die Masterarbeit bei dir schreiben.', { good: true });
     }
   }
@@ -2308,7 +2706,7 @@ var PPP = (function () {
     var b = moduleBlock(S, mid);
     if (b) return b;
     var M = MODM[mid];
-    var p = { id: nid(S, 'p'), type: 'lecture', mod: mid, title: M.name, need: M.hours, done: 0, status: 'writing' };
+    var p = { id: nid(S, 'p'), type: 'lecture', mod: mid, title: M.name, need: Math.round(M.hours * (hasTalent(S, 'didaktik') ? 0.7 : 1)), done: 0, status: 'writing' };
     addProject(S, p);
     return null;
   }
@@ -2381,12 +2779,12 @@ var PPP = (function () {
 
   /* ---------- Vorschläge aus der Gruppe ---------- */
   function autoStudyPlan(S, lead) {
-    var qs = QUESTIONS.filter(function (q) { return !questionBlock(S, q.id); }).sort(function (a, b) { return questionNovelty(S, b.id) - questionNovelty(S, a.id); });
+    var qs = QUESTIONS.filter(function (q) { return !questionBlock(S, q.id); }).sort(function (a, b) { return questionNovelty(S, b.id, bestRegion(S, b.id)) - questionNovelty(S, a.id, bestRegion(S, a.id)); });
     if (!qs.length) return null;
     var Q = qs[Math.min(qs.length - 1, ri(0, 1))];
     var opt = Q.opt.filter(function (p) { return !paramAvail(S, p) && (p !== 'iso' || Q.core.indexOf('ghg') >= 0); })
       .sort(function (a, b) { return PARAMM[b].impact - PARAMM[a].impact; }).slice(0, 2);
-    return { q: Q.id, n: Math.min(6, maxN(S)), k: 2, params: Q.core.concat(opt), lead: lead };
+    return { q: Q.id, n: Math.min(6, maxN(S)), k: 2, params: Q.core.concat(opt), lead: lead, reg: bestRegion(S, Q.id) };
   }
   function resolveProposal(S, d, yes, ev, auto) {
     dropDecision(S, d);
@@ -2536,6 +2934,7 @@ var PPP = (function () {
         S.grantResub[gs.grant] = 0;
         S.admin += 4;
         unlock(S, ev, 'grant1');
+        chron(S, 'Bewilligt: ' + G.name);
         if (gs.grant === 'ercstg' || gs.grant === 'ercadv') unlock(S, ev, 'erc');
         log(S, ev, 'antrag', 'Bewilligt! ' + G.name + ': ' + (G.perWeek * G.weeks).toLocaleString('de-DE') + ' € über ' + Math.round(G.weeks / 52) + ' Jahre, genug für ' + G.fund + '.', { good: true });
       } else {
@@ -2548,10 +2947,13 @@ var PPP = (function () {
       S.career = Math.min(CAREER.length - 1, S.career + 1);
       var C = CAREER[S.career];
       S.money += C.bonus;
+      if (S.pi) { S.pi.pts += 2; S.pi.picks += 1; }
+      chron(S, S.career === 5 ? 'Leibniz-Preis' : 'Ruf angenommen: ' + C.name);
       if (S.career === 4) unlock(S, ev, 'w3');
       if (S.career === 5) unlock(S, ev, 'leibniz');
       log(S, ev, 'karriere', S.career === 5 ? 'Leibniz-Preis! 2,5 Mio. € für deine Forschung.' :
         'Ruf angenommen: ' + C.name + '. Grundausstattung jetzt ' + C.ga.toLocaleString('de-DE') + ' € pro Woche' + (C.bonus ? ', Berufungsmittel ' + C.bonus.toLocaleString('de-DE') + ' €.' : '.'), { good: true });
+      log(S, ev, 'karriere', 'Neue Stufe, mehr Profil: zwei Fähigkeitspunkte und ein Talent sind frei.', { good: true });
     }
   }
   function drawWeather(S) {
@@ -2569,13 +2971,15 @@ var PPP = (function () {
     S.cites = tot;
     if (hIndex(S) >= 10) unlock(S, ev, 'h10');
     // Personal
-    var decay = 0.012 * Math.max(0.2, 1 + f.motDecay) * (S.money < 0 ? 3 : 1) * (S.admin > 40 ? 1.5 : 1);
+    var decay = 0.012 * Math.max(0.2, 1 + f.motDecay) * (S.money < 0 ? 3 : 1) * (S.admin > 40 ? 1.5 : 1) * (hasTalent(S, 'charisma') ? 0.7 : 1) * clamp(1.15 - 0.06 * piSk(S, 'mgmt'), 0.7, 1.1);
     S.staff.forEach(function (p) {
-      var d = decay * (p.trait === 'laune' ? 0.5 : 1);
+      var d = decay * (hasTrait(p, 'laune') ? 0.5 : 1);
       p.mot = clamp(p.mot - d + (S.act === 'urlaub' ? 0.02 : 0), 0.05, 1);
       if (p.away > 0) p.away -= 1;
     });
     developStaff(S, ev);
+    piWeekly(S, ev);
+    regionsWeekly(S, ev);
     confWeekly(S, ev, c);
     rufWeekly(S, ev);
     histPush(S);
@@ -2605,7 +3009,7 @@ var PPP = (function () {
     // Abschlussarbeiten
     S.students.slice().forEach(function (s) {
       s.wk += 1;
-      s.sup = Math.max(0, s.sup - (s.type === 'BSc' ? 0.06 : 0.045));
+      s.sup = Math.max(0, s.sup - (s.type === 'BSc' ? 0.06 : 0.045) * (hasTalent(S, 'mentor') ? 0.75 : 1));
       s.supSum += s.sup;
       if (s.wk >= s.dur) finishThesis(S, s, ev);
     });
@@ -2614,7 +3018,7 @@ var PPP = (function () {
     if (c.lecture) {
       var off = offeredModules(S);
       S.sem.weeks += 1; S.sem.held += off.length;
-      off.forEach(function (k) { S.interest += MODM[k].size * S.modules[k].q * (1 + f.interest) * 0.45; });
+      off.forEach(function (k) { S.interest += MODM[k].size * S.modules[k].q * (1 + f.interest) * 0.45 * (hasTalent(S, 'charisma') ? 1.1 : 1); });
     }
     if (c.kw === 7 || c.kw === 29) semesterEnd(S, ev);
     while (S.interest >= 10 && S.applicants.length < 3) {
@@ -2629,7 +3033,7 @@ var PPP = (function () {
     });
     // Gutachtenanfragen
     S.reviews = S.reviews.filter(function (r) { return r.exp > S.week; });
-    if (S.papers.length >= 1 && S.reviews.length < 3 && rnd() < clamp(0.06 + S.rep / 4000, 0.06, 0.3)) {
+    if (S.papers.length >= 1 && S.reviews.length < 3 && rnd() < clamp(0.06 + S.rep / 4000, 0.06, 0.3) * (hasTalent(S, 'gutachter') ? 1.3 : 1)) {
       var r = genReview(S);
       S.reviews.push(r);
       log(S, ev, 'review', JOURM[r.j].name + ' bittet dich um ein Gutachten.', { rid: r.id });
@@ -2656,7 +3060,7 @@ var PPP = (function () {
       var s = S.inst[id], I = INSTM[id];
       if (s.broken > 0) { s.broken -= 1; if (s.broken === 0) log(S, ev, 'labor', I.name + ' ist repariert.'); return; }
       if (I.cap && rnd() < 0.012 * (S.upg.wartung ? 0.4 : 1) * (labLead(S) ? 0.5 : 1)) {
-        var fast = S.staff.some(function (p) { return p.trait === 'gcdoc'; });
+        var fast = S.staff.some(function (p) { return hasTrait(p, 'gcdoc'); });
         s.broken = Math.max(1, Math.round((S.upg.wartung ? 1.5 : 3) * (fast ? 0.5 : 1)));
         var cost = S.upg.wartung ? 0 : Math.round(I.cost * 0.05);
         pay(S, cost);
@@ -2725,9 +3129,10 @@ var PPP = (function () {
     S.stats.phds += 1;
     unlock(S, ev, 'phd1');
     log(S, ev, 'team', p.name + ' hat ' + pr + ' promoviert! ' + p.ch + ' Kapitel, ' + p.pub + ' davon publiziert.', { good: true });
+    chron(S, p.name + ' promoviert ' + pr);
     if (S.career >= 1 && p.pub >= 1 && rnd() < (p.pub >= 2 ? 0.65 : 0.35)) {
       S.cands.unshift({ id: nid(S, 'c'), role: 'postdoc', g: p.g, name: p.name, internal: true, exp: S.week + 16, path: (p.path || []).slice(), xp: p.xp,
-        sk: { feld: p.sk.feld, labor: p.sk.labor, stat: Math.min(5, (p.sk.stat || 2) + 1), schreiben: Math.min(5, (p.sk.schreiben || 2) + 1) }, trait: p.trait });
+        sk: { feld: p.sk.feld, labor: p.sk.labor, stat: Math.min(5, (p.sk.stat || 2) + 1), schreiben: Math.min(5, (p.sk.schreiben || 2) + 1) }, trait: p.trait, perks: (p.perks || []).slice() });
       log(S, ev, 'team', 'Dr. ' + p.name + ' möchte als Postdoc in deiner Gruppe bleiben. Die Bewerbung liegt im Team-Bereich.', { good: true });
     } else addAlumnus(S, p, 'phd', pick(PHD_JOBS), ev);
   }
@@ -2749,16 +3154,61 @@ var PPP = (function () {
     if (!p.path) p.path = [{ r: p.role, wk: Math.floor((p.hired || 0) / WEEK) }];
     if (p.trainWk == null) p.trainWk = -99;
     if (p.confs == null) p.confs = 0;
+    if (!p.perks) p.perks = [];
+    if (p.focus === undefined) p.focus = null;
   }
   function xpNeed(lv) { return 20 + 12 * lv; }
   function gainXp(S, p, k, w, ev) {
     if (p.sk[k] == null || p.sk[k] >= 5) return;
-    p.xp[k] = (p.xp[k] || 0) + w / xpNeed(p.sk[k]);
+    var fm = (p.focus ? (p.focus === k ? 1.5 : 0.75) : 1) * (hasTalent(S, 'mentor') ? 1.3 : 1);
+    p.xp[k] = (p.xp[k] || 0) + w * fm / xpNeed(p.sk[k]);
     if (p.xp[k] < 1) return;
     p.xp[k] = 0; p.sk[k] += 1;
     S.stats.levelups += 1;
     log(S, ev, 'team', p.name + ' hat dazugelernt: ' + SKILL_NAME[k] + ' jetzt ' + p.sk[k] + ' von 5.', { good: p.sk[k] >= 4 });
     if (p.sk[k] >= 5) unlock(S, ev, 'meister');
+    perkCheck(S, p, k, ev);
+  }
+  function setFocus(S, pid, k) {
+    var p = person(S, pid);
+    if (!p) return 'Nicht mehr in der Gruppe.';
+    if (k && p.sk[k] == null) return 'Passt nicht zur Stelle.';
+    p.focus = k || null;
+    return null;
+  }
+  function renameStaff(S, pid, name) {
+    var p = person(S, pid), v = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (!p) return 'Nicht mehr in der Gruppe.';
+    if (v.length < 2) return 'Bitte gib einen Namen ein.';
+    var old = p.name;
+    p.name = v;
+    S.papers.concat(S.manus).forEach(function (x) { if (x.authors) x.authors = x.authors.map(function (a) { return a === old ? v : a; }); });
+    return null;
+  }
+  function perkOpts(S, p, k) {
+    var pool = TRAITS.filter(function (t) { return t.id !== 'koffein' && !hasTrait(p, t.id); });
+    var fit = pool.filter(function (t) { return TRAIT_K[t.id] === k; });
+    var first = fit.length ? pick(fit) : null;
+    return (first ? [first] : []).concat(shuffle(pool.filter(function (t) { return t !== first; }))).slice(0, 3).map(function (t) { return t.id; });
+  }
+  // Bei Stufe 3 und 5 einer Fähigkeit wählst du mit der Person eine neue Stärke (höchstens drei)
+  function perkCheck(S, p, k, ev) {
+    if (!ROLES[p.role].station || (p.sk[k] !== 3 && p.sk[k] !== 5)) return;
+    if ((p.perks || []).length >= 3) return;
+    var opts = perkOpts(S, p, k);
+    if (opts.length) addDecision(S, ev, 'talent', p.id, 3, { pid: p.id, opts: opts, k: k });
+  }
+  function resolvePerk(S, d, choice, ev, auto) {
+    dropDecision(S, d);
+    var p = person(S, d.data.pid);
+    if (!p) return null;
+    var id = d.data.opts.indexOf(choice) >= 0 ? choice : d.data.opts[0];
+    if (!p.perks) p.perks = [];
+    if (hasTrait(p, id) || !TRAITM[id]) return null;
+    p.perks.push(id);
+    S.stats.perks += 1;
+    log(S, ev, 'team', p.name + ' entwickelt eine neue Stärke: ' + TRAITM[id].name + ' (' + TRAITM[id].desc + ').' + (auto ? ' Ohne deine Wahl hat ' + p.name.split(' ')[0] + ' selbst entschieden.' : ''), { good: true });
+    return id;
   }
   function developStaff(S, ev) {
     S.staff.forEach(function (p) {
@@ -2790,6 +3240,7 @@ var PPP = (function () {
     pay(S, cost);
     p.away = Math.max(p.away || 0, C.weeks); p.trainWk = S.week;
     p.sk[C.k] = Math.min(5, p.sk[C.k] + 1); p.xp[C.k] = 0;
+    perkCheck(S, p, C.k, ev);
     p.mot = Math.min(1, p.mot + 0.1);
     S.stats.trainings += 1; S.admin += 1;
     if (S.stats.trainings >= 5) unlock(S, ev, 'fortbildung');
@@ -2813,7 +3264,7 @@ var PPP = (function () {
     var type = thesisType(S, p);
     S.staff = S.staff.filter(function (x) { return x !== p; });
     S.students.push({ id: nid(S, 'a'), type: type, g: p.g, name: p.name, title: pick(THESIS_TITLES), sk: { feld: p.sk.feld || 1, labor: p.sk.labor || 1 }, st: p.st === 'labor' ? 'labor' : 'feld',
-      sup: 0.85, supSum: 0, wk: 0, dur: type === 'BSc' ? 12 : 26, supWk: -99, path: p.path.concat([{ r: type.toLowerCase(), wk: S.week }]), inhouse: true, keep: { sk: p.sk, trait: p.trait } });
+      sup: 0.85, supSum: 0, wk: 0, dur: type === 'BSc' ? 12 : 26, supWk: -99, path: p.path.concat([{ r: type.toLowerCase(), wk: S.week }]), inhouse: true, keep: { sk: p.sk, trait: p.trait, perks: (p.perks || []).slice() } });
     S.admin += 1;
     log(S, ev, 'lehre', p.name + ' schreibt jetzt die ' + (type === 'BSc' ? 'Bachelorarbeit' : 'Masterarbeit') + ' in deiner Gruppe.', { good: true });
     return null;
@@ -2872,6 +3323,7 @@ var PPP = (function () {
     S.staff = S.staff.filter(function (x) { return x !== p; });
     S.studies.forEach(function (st) { if (st.lead === p.id) st.lead = 'pi'; });
     addAlumnus(S, p, 'prof', 'eine Professur in ' + d.data.uni, ev);
+    chron(S, p.name + ' folgt dem Ruf nach ' + d.data.uni);
     addRep(S, 20 + 10 * S.career);
     unlock(S, ev, 'ruf');
     log(S, ev, 'team', p.name + ' folgt dem Ruf nach ' + d.data.uni + '. Ein Ast deines akademischen Stammbaums.', { good: true });
@@ -2935,7 +3387,7 @@ var PPP = (function () {
     var n = (plan.pi || plan.who === 'pi' ? 1 : 0) + (plan.who && plan.who !== 'pi' ? 1 : 0);
     var talkP = plan.type === 'keynote' ? 1 : clamp(C.talk * (0.45 + 0.55 * strength) * (1 + Math.min(0.5, S.rep / 4000)), 0.05, 0.98);
     var type = plan.type === 'none' ? 1 : plan.type === 'keynote' ? 2.5 : plan.type === 'talk' ? 1.6 : 1;
-    var rp = plan.type === 'none' ? 0 : C.rep * type * (0.6 + 0.4 * strength) * (plan.who === 'pi' ? 1 : 0.75) * repMult(S);
+    var rp = plan.type === 'none' ? 0 : C.rep * type * (0.6 + 0.4 * strength) * (plan.who === 'pi' ? 1 : 0.75) * repMult(S) * (hasTalent(S, 'netz') ? 1.25 : 1);
     return { cost: plan.type === 'none' ? 0 : C.cost * Math.max(1, n), talkP: talkP, rep: rp, strength: strength };
   }
   function resolveTagung(S, d, choice, ev, auto) {
@@ -2992,7 +3444,7 @@ var PPP = (function () {
       }
       if (r.at === S.week - 1) {
         var mult = r.type === 'keynote' ? 2.5 : r.type === 'talk' ? 1.6 : 1;
-        addRep(S, C.rep * mult * (0.6 + 0.4 * r.strength) * (r.who === 'pi' ? 1 : 0.75));
+        addRep(S, C.rep * mult * (0.6 + 0.4 * r.strength) * (r.who === 'pi' ? 1 : 0.75) * (hasTalent(S, 'netz') ? 1.25 : 1));
         S.stats.confs += 1;
         if (r.type === 'poster') S.stats.posters += 1; else S.stats.talks += 1;
         if (r.type === 'keynote') S.stats.keynotes += 1;
@@ -3007,7 +3459,7 @@ var PPP = (function () {
           } else msg += ' ' + who.name + ' kommt motiviert und mit neuen Ideen zurück.';
         }
         if (r.pi) {
-          S.net += C.size;
+          S.net += C.size * (hasTalent(S, 'netz') ? 2 : 1);
           msg += ' Du hast Kontakte geknüpft, die nächsten Bewerbungen werden besser.';
           if (rnd() < 0.07 * C.size) maybeEventForce(S, ev, 'koop');
         }
@@ -3058,6 +3510,18 @@ var PPP = (function () {
     if (S.stats.papers >= 10) unlock(S, ev, 'paper10');
     if (S.stats.papers >= 50) unlock(S, ev, 'paper50');
     if (!S.ach.cite100 && S.papers.some(function (pp) { return paperCites(S, pp) >= 100; })) unlock(S, ev, 'cite100');
+    if (S.reg) REGIONS.forEach(function (Rg) {
+      var rs = S.reg[Rg.id];
+      if (!rs || !rs.open) return;
+      var l = ortsLevel(S, Rg.id);
+      if (l >= 3) unlock(S, ev, 'heimisch');
+      if (l >= 5) unlock(S, ev, 'legende');
+      if (rs.years.length >= 10) unlock(S, ev, 'reihe10');
+      if (!Rg.start) unlock(S, ev, 'neuland');
+    });
+    if (S.reg && REGIONS.every(function (Rg) { return regOpen(S, Rg.id); })) unlock(S, ev, 'entdecker');
+    if (S.pi && PI_SKILLS.some(function (k) { return S.pi.sk[k] >= PI_MAX; })) unlock(S, ev, 'profil');
+    if (Object.keys(S.topicPubs || {}).some(function (t) { return expertLevel(S, t) >= 5; })) unlock(S, ev, 'koryphae');
     if (!S.ach.pseudo && S.manus.some(function (m) { return m.comments && m.comments.some(function (x) { return x.type === 'pseudo'; }); })) unlock(S, ev, 'pseudo');
   }
 
@@ -3076,9 +3540,10 @@ var PPP = (function () {
     while (S.week < wk) { S.week += 1; weekly(S, ev); }
   }
   function setAct(S, a) { if (ACTM[a]) S.act = a; }
+  // secs: echte Sekunden; das Spieltempo legt fest, wie viele Spielsekunden daraus werden
   function catchUp(S, secs) {
     var cap = offlineCapH(S) * 3600;
-    var sim = Math.max(0, Math.min(secs, cap));
+    var sim = Math.max(0, Math.min(secs, cap)) / tempo(S);
     var before = summary(S), ev = [];
     var dt = sim > 6 * 3600 ? 4 : 2, left = sim;
     while (left > 0) { var x = Math.min(dt, left); step(S, x, ev); left -= x; }
@@ -3094,11 +3559,32 @@ var PPP = (function () {
   function revive(obj) {
     if (!obj || typeof obj !== 'object' || obj.v !== VERSION || typeof obj.t !== 'number') return null;
     var tpl = newState(obj.name, obj.created || Date.now());
+    if (!obj.flags) obj.flags = {};
+    if (!('v4seen' in obj.flags)) obj.flags.v4seen = false;
+    if (!obj.pi) {
+      var b0 = Math.floor(3 + 0.5 * (obj.career || 0)), pi = newPi();
+      PI_SKILLS.forEach(function (k) { pi.sk[k] = b0; });
+      pi.pts = 0; pi.picks = 1 + (obj.career || 0);
+      obj.pi = pi;
+    }
+    if (!obj.reg) {
+      obj.reg = {};
+      REGIONS.forEach(function (R) { regState(obj, R.id); });
+      var done = (obj.studies || []).filter(function (s) { return !s.diss; }).length + ((obj.stats && obj.stats.studies) || 0);
+      obj.reg.hallig.xp = 4 + ((obj.stats && obj.stats.campaigns) || 0); obj.reg.hallig.camps = (obj.stats && obj.stats.campaigns) || 0; obj.reg.hallig.studies = 1 + done;
+    }
+    if (!obj.tempo) obj.tempo = 2;
     for (var k in tpl) if (!(k in obj)) obj[k] = tpl[k];
     for (var s in tpl.stats) if (!(s in obj.stats)) obj.stats[s] = 0;
     for (var g in tpl.flags) if (!(g in obj.flags)) obj.flags[g] = tpl.flags[g];
     ['money', 'rep', 'admin'].forEach(function (key) { if (!isFinite(obj[key])) obj[key] = 0; });
     obj.staff.forEach(function (p) { initPerson(obj, p); });
+    obj.studies.forEach(function (st) {
+      if (!st.reg) st.reg = st.qid === 'methan' ? 'elbe' : 'hallig';
+      if (st.permitW == null) st.permitW = 3;
+      if (st.camp && st.camp.base == null) st.camp.base = st.camp.need;
+    });
+    obj.manus.forEach(function (m) { if (m.reg === undefined) m.reg = 'hallig'; });
     obj.students.forEach(function (s) { if (!s.path) s.path = [{ r: s.type.toLowerCase(), wk: obj.week - s.wk }]; });
     obj._fx = null; obj._cal = null;
     return obj;
@@ -3110,6 +3596,13 @@ var PPP = (function () {
     COMMENTS: COMMENTS, RECS: RECS, REC_NAME: REC_NAME, GRANTS: GRANTS, GRANTM: GRANTM, MODULES: MODULES, MODM: MODM, ROLES: ROLES, SKILLS: SKILLS, SKILL_NAME: SKILL_NAME,
     TRAITS: TRAITS, TRAITM: TRAITM, ACTS: ACTS, ACTM: ACTM, ACH: ACH, WEATHER: WEATHER, DAYLIGHT: DAYLIGHT, R2: R2, EVENTM: EVENTM,
     COURSES: COURSES, COURSEM: COURSEM, PATH_NAME: PATH_NAME, CONFS: CONFS, CONFM: CONFM, QAM: QAM, HIST_KEYS: HIST_KEYS,
+    REGIONS: REGIONS, REGM: REGM, REQ: REQ, REQM: REQM, ORTS: ORTS, ORTS_PREP: ORTS_PREP, PI_SKILLS: PI_SKILLS, PI_SKILL_NAME: PI_SKILL_NAME, PI_SKILL_DESC: PI_SKILL_DESC, PI_MAX: PI_MAX,
+    SPECS: SPECS, SPECM: SPECM, TALENTS: TALENTS, TALM: TALM, EXPERT: EXPERT, TEMPOS: TEMPOS, TRAIT_K: TRAIT_K,
+    tempo: tempo, setTempo: setTempo, hasTalent: hasTalent, piSk: piSk, piXpNeed: piXpNeed, hasTrait: hasTrait, specMult: specMult, expertLevel: expertLevel, adminThreshold: adminThreshold,
+    regState: regState, regOpen: regOpen, ortsLevel: ortsLevel, regEq: regEq, travelF: travelF, prepFactor: prepFactor, travelCost: travelCost, campaignCost: campaignCost, permitWeeks: permitWeeks,
+    regQual: regQual, regUnlockCost: regUnlockCost, regionBlock: regionBlock, openRegion: openRegion, reqCost: reqCost, reqBlock: reqBlock, buyReq: buyReq, regionPlanBlock: regionPlanBlock, bestRegion: bestRegion,
+    synthBlock: synthBlock, startSynthesis: startSynthesis, longMult: longMult, setSpec: setSpec, spendPoint: spendPoint, talentBlock: talentBlock, pickTalent: pickTalent, createProfile: createProfile,
+    setFocus: setFocus, renameStaff: renameStaff, forecast: forecast,
     xpNeed: xpNeed, courseCost: courseCost, trainBlock: trainBlock, train: train, thesisType: thesisType, thesisOfferBlock: thesisOfferBlock, offerThesis: offerThesis,
     labLead: labLead, labLeadBlock: labLeadBlock, makeLabLead: makeLabLead, declineCand: declineCand, alumniScore: alumniScore,
     confFindings: confFindings, confPresenters: confPresenters, confDefault: confDefault, confEstimate: confEstimate,
@@ -3140,7 +3633,7 @@ var PPP = (function () {
 
 </script>
 <script>
-/* Proben, Paper, Professur — Oberfläche Version 2 */
+/* Proben, Paper, Professur — Oberfläche Version 4 */
 (function () {
   'use strict';
   var P = window.PPP, WEEK = P.WEEK;
@@ -3211,7 +3704,11 @@ var PPP = (function () {
   }
   var ST_SHORT = { feld: 'Feld', labor: 'Labor', buero: 'Schreiben' };
   var PTYPE = { analysis: 'Auswertung', paper: 'Manuskript', revision: 'Revision', grant: 'Antrag', lecture: 'Lehre', relecture: 'Lehre', review: 'Gutachten', exam: 'Prüfungen' };
-  var DEC_ICON = { story: 'pen', stat: 'scatter', termin: 'wave', kal: 'flask', einreichen: 'mail', rebuttal: 'pen', vorschlag: 'team', event: 'star', tagung: 'mic', fragerunde: 'mic', ruf: 'cap' };
+  var DEC_ICON = { story: 'pen', stat: 'scatter', termin: 'wave', kal: 'flask', einreichen: 'mail', rebuttal: 'pen', vorschlag: 'team', event: 'star', tagung: 'mic', fragerunde: 'mic', ruf: 'cap', talent: 'star' };
+  function regName(id) { var x = P.REGM[id]; return x ? x.name : ''; }
+  function numDe(v) { return String(Math.round(v * 10) / 10).replace('.', ','); }
+  function minText(v) { return numDe(v) + (v === 1 ? ' Minute' : ' Minuten'); }
+  function tempoName(v) { var t = P.TEMPOS.filter(function (x) { return x.v === v; })[0]; return (t ? t.name + ', ' : '') + minText(v) + ' pro Woche'; }
 
   /* ---------- Speichern ---------- */
   function lsGet(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
@@ -3350,11 +3847,13 @@ var PPP = (function () {
     if (!S.flags.onboarded) openSheet('welcome');
     else if (gap > 90 && !fromHot) awayReturn(gap);
     else if (gap > 0.5) stepFor(Math.min(gap, 90));
+    if (S.flags.onboarded && !S.flags.v4seen && !sheet) openSheet('neu');
     refresh();
     setInterval(tick, 250);
     initDb();
   }
-  function stepFor(sec) { while (sec > 1e-6) { var d = Math.min(1, sec); P.step(S, d, evs); sec -= d; } }
+  // sec: echte Sekunden; beim Tempo »Gemächlich« (2) wird daraus eine halbe Spielsekunde je Sekunde
+  function stepFor(sec) { sec = sec / P.tempo(S); while (sec > 1e-6) { var d = Math.min(1, sec); P.step(S, d, evs); sec -= d; } }
   function tick() {
     if (!S) return;
     var now = Date.now(), gap = (now - lastTick) / 1000;
@@ -3432,10 +3931,10 @@ var PPP = (function () {
   function studyOf(id) { return P.study(S, id); }
   function actEffect() {
     var h = R.hours, t = 'Von deinen ' + h.total + ' Wochenstunden bleiben nach Lehre und Mails ' + h.fokus + ' für »' + P.ACTM[S.act].name + '«. ';
-    if (S.act === 'feld') t += 'Mit deiner Erfahrung und dem Wetter bringt das ' + n0(R.pi.feld) + ' Feldstunden.';
-    else if (S.act === 'labor') t += 'Mit deiner Erfahrung bringt das ' + n0(R.pi.labor) + ' Laborstunden.';
-    else if (S.act === 'buero') t += 'Mit deiner Erfahrung bringt das ' + n0(R.pi.write) + ' Stunden am Schreibtisch.';
-    else if (S.act === 'verwaltung') t += 'Damit erledigst du ' + n0(R.pi.admin) + ' Vorgänge zusätzlich.';
+    if (S.act === 'feld') t += 'Mit Feldarbeit ' + P.piSk(S, 'feld') + ' und dem Wetter bringt das ' + n0(R.pi.feld) + ' Feldstunden.';
+    else if (S.act === 'labor') t += 'Mit Labor ' + P.piSk(S, 'labor') + ' bringt das ' + n0(R.pi.labor) + ' Laborstunden.';
+    else if (S.act === 'buero') t += 'Mit Schreiben ' + P.piSk(S, 'schreiben') + ' und Statistik ' + P.piSk(S, 'stat') + ' bringt das ' + n0(R.pi.write) + ' Schreib- und ' + n0(R.pi.stat) + ' Auswertungsstunden.';
+    else if (S.act === 'verwaltung') t += 'Mit Führung ' + P.piSk(S, 'mgmt') + ' erledigst du ' + n0(R.pi.admin) + ' Vorgänge zusätzlich.';
     else if (S.act === 'konf') t += 'Bringt ' + (2 + S.career) + ' Renommee pro Woche und manchmal Kooperationen, kostet 250 € Reisekosten pro Woche.';
     else t += 'Die Motivation im Team steigt, und danach bist du erholt: +30 % Leistung für bis zu 8 Wochen.';
     if (S.rested > 0 && S.act !== 'urlaub') t += ' Erholt: +30 % für noch ' + wks(S.rested) + '.';
@@ -3446,15 +3945,16 @@ var PPP = (function () {
     if (st.camp.ready) return 'Bereit: Wähle einen Feldtermin.';
     if (st.qid === 'warm' && S.warmBroken > 0) return 'Die Erwärmungsplots werden repariert.';
     if (S.week < st.camp.next) return 'Nächste Kampagne frühestens in ' + wks(st.camp.next - S.week) + '.';
-    var w = P.campaignWindow(st.params), m = P.cal(S).month;
+    var w = P.campaignWindow(st.params), m = P.cal(S).month, Rg = P.REGM[st.reg];
+    if (Rg && Rg.brut && m >= Rg.brut[0] && m <= Rg.brut[1]) return 'Brutzeit auf ' + Rg.name + ': bis Ende ' + monthName(Rg.brut[1]) + ' kein Zutritt zu den Salzwiesen.';
     if (w && (m < w[0] || m > w[1])) return 'Wartet auf die Saison (' + monthName(w[0]) + ' bis ' + monthName(w[1]) + ').';
     if (S.fieldStop > 0) return 'Feldarbeit gestoppt (Arbeitssicherheit).';
     var t = 'Vorbereitung: ' + n0(st.camp.prep) + ' von ' + n0(st.camp.need) + ' Feldstunden.';
     return R.feld < 0.5 ? t + ' Niemand arbeitet gerade im Feld.' : t;
   }
   function fieldWaiting() {
-    return S.studies.some(function (st) { return st.phase === 'field' && !st.camp.ready && P.campaignOpen(S, st.params, st.camp.next) && !(st.qid === 'warm' && S.warmBroken > 0); }) ||
-      S.extra.some(function (x) { return !x.sampled && !x.ready && P.campaignOpen(S, x.params, x.next || 0); });
+    return S.studies.some(function (st) { return st.phase === 'field' && !st.camp.ready && P.campaignOpen(S, st.params, st.camp.next, st.reg) && !(st.qid === 'warm' && S.warmBroken > 0); }) ||
+      S.extra.some(function (x) { var xs = P.study(S, x.sid); return !x.sampled && !x.ready && P.campaignOpen(S, x.params, x.next || 0, xs ? xs.reg : null); });
   }
   function labWaiting() {
     var n = 0;
@@ -3514,9 +4014,11 @@ var PPP = (function () {
       case 'act-eff': return actEffect();
       case 'cap': if (b === 'feld') return n0(R.feld) + ' h/Wo'; if (b === 'labor') return n0(R.labor) + ' h/Wo'; if (b === 'write') return n0(R.write) + ' h/Wo'; if (b === 'stat') return n0(R.stat) + ' h/Wo'; return '';
       case 'desk': return 'Arbeitet gleichzeitig an ' + P.deskSlots(S) + (P.deskSlots(S) === 1 ? ' Projekt' : ' Projekten') + ' · Schreiben ' + n0(R.write) + ' h/Wo · Auswerten ' + n0(R.stat) + ' h/Wo';
-      case 'admin-info': x = R.adminIn - R.adminOut; return n0(S.admin) + ' offene Vorgänge · ' + n1(R.adminIn) + ' neue und ' + n1(R.adminOut) + ' erledigte pro Woche' + (S.admin > 25 ? ' · ab 25 leidet deine Leistung' : '');
+      case 'admin-info': x = R.adminIn - R.adminOut; return n0(S.admin) + ' offene Vorgänge · ' + n1(R.adminIn) + ' neue und ' + n1(R.adminOut) + ' erledigte pro Woche' + (S.admin > P.adminThreshold(S) ? ' · ab ' + P.adminThreshold(S) + ' leidet deine Leistung' : '');
       case 'stprep': st = studyOf(b); return st ? prepWhy(st) : '';
-      case 'stpermit': st = studyOf(b); return st ? 'Genehmigung der Nationalparkverwaltung in ' + wks((st.permitAt - S.t) / WEEK) + '.' : '';
+      case 'stpermit': st = studyOf(b); return st ? 'Genehmigung ' + (P.REGM[st.reg] && !P.REGM[st.reg].np ? 'der Naturschutzbehörde' : 'der Nationalparkverwaltung') + ' in ' + wks((st.permitAt - S.t) / WEEK) + '.' : '';
+      case 'regxp': x = P.ortsLevel(S, b); st = P.regState(S, b); return x >= P.ORTS.length - 1 ? 'Höchste Stufe erreicht.' : n1(st.xp) + ' von ' + P.ORTS[x + 1].n + ' Punkten bis »' + P.ORTS[x + 1].name + '«';
+      case 'pixp': return P.piSk(S, b) >= P.PI_MAX ? 'Maximum erreicht' : pct(S.pi.xp[b] || 0) + ' zur nächsten Stufe';
       case 'stlab': x = b.split('|'); st = studyOf(x[0]); return st && st.q[x[1]] ? labLine(st, x[1]) : '';
       case 'stan': st = studyOf(b); x = S.projects.filter(function (p) { return p.type === 'analysis' && p.sid === b; })[0]; return x ? 'Auswertung (' + P.MODELS[st.model].name + '): ' + n0(x.done) + ' von ' + n0(x.need) + ' h' : 'Wartet auf die Wahl des Statistikmodells.';
       case 'inst': return instLine(b);
@@ -3537,7 +4039,7 @@ var PPP = (function () {
       case 'quiz': return P.quizReady(S) ? 'Jemand klopft an deine Tür.' : 'Nächste Sprechstunde in ' + wks(3 - (S.week - S.quizWeek));
       case 'cand': return 'Neue Bewerbungen in ' + wks(S.candWeek - S.week);
       case 'party': return S.week - S.partyWeek < 12 ? 'Wieder möglich in ' + wks(12 - (S.week - S.partyWeek)) : 'Hebt die Motivation aller um 15 Punkte.';
-      case 'offcap': return P.offlineCapH(S) + ' Std.';
+      case 'offcap': return P.offlineCapH(S) + ' Stunden';
       case 'save': if (store.status === 'cloud') return 'Der Spielstand liegt in deinem Firebase-Cloud-Speicher und auf diesem Gerät.';
         if (store.status === 'cloudfehler') return 'Cloud-Speicher nicht erreichbar' + (store.err ? ' (' + store.err + ')' : '') + '. Gespeichert wird auf diesem Gerät.';
         return store.status === 'konto' ? 'Der Spielstand liegt in deinem Konto und folgt dir auf andere Geräte.' : store.status === 'prüfe' ? 'Verbinde mit deinem Konto …' : store.status === 'voll' ? 'Der Kontospeicher ist voll. Gespeichert wird auf diesem Gerät.' : 'Der Spielstand liegt auf diesem Gerät.';
@@ -3561,7 +4063,9 @@ var PPP = (function () {
       case 'apply': return S.apply ? (S.t - S.apply.start) / Math.max(1, S.apply.at - S.apply.start) : 0;
       case 'req': x = (P.careerReqs(S) || [])[+b]; return x ? Math.min(1, x.have / x.need) : 0;
       case 'stprep': st = studyOf(b); return st ? (st.camp.ready ? 1 : st.camp.prep / Math.max(1, st.camp.need)) : 0;
-      case 'stpermit': st = studyOf(b); return st ? 1 - Math.max(0, st.permitAt - S.t) / (3 * WEEK) : 0;
+      case 'stpermit': st = studyOf(b); return st ? 1 - Math.max(0, st.permitAt - S.t) / (Math.max(1, st.permitW || 3) * WEEK) : 0;
+      case 'regxp': x = P.ortsLevel(S, b); st = P.regState(S, b); return x >= P.ORTS.length - 1 ? 1 : (st.xp - P.ORTS[x].n) / (P.ORTS[x + 1].n - P.ORTS[x].n);
+      case 'pixp': return P.piSk(S, b) >= P.PI_MAX ? 1 : S.pi.xp[b] || 0;
       case 'stlab': x = b.split('|'); st = studyOf(x[0]); if (!st || !st.q[x[1]]) return 0; return st.q[x[1]].total ? (st.q[x[1]].done + st.q[x[1]].lost) / st.q[x[1]].total : 0;
       case 'stlaball': st = studyOf(b); if (!st) return 0; x = [0, 0]; st.params.forEach(function (p) { x[0] += st.q[p].done + st.q[p].lost; x[1] += st.q[p].total; }); return x[1] ? x[0] / x[1] : 0;
       case 'stan': x = S.projects.filter(function (p) { return p.type === 'analysis' && p.sid === b; })[0]; return x ? x.done / x.need : 0;
@@ -3580,7 +4084,7 @@ var PPP = (function () {
     });
     $$('[data-cost]').forEach(function (el) { var poor = S.money < +el.getAttribute('data-cost'); el.classList.toggle('poor', poor); el.disabled = poor; });
     var m = $('#res-money'); if (m) m.classList.toggle('neg', S.money < 0);
-    var ad = $('#res-admin'); if (ad) ad.classList.toggle('neg', S.admin > 25);
+    var ad = $('#res-admin'); if (ad) ad.classList.toggle('neg', S.admin > P.adminThreshold(S));
     var wi = $('#wx-ic'), wn = '#i-' + ({ sturm: 'storm', regen: 'rain', wolkig: 'cloud', sonne: 'sun' }[S.weather.k] || 'cloud');
     if (wi && wi.getAttribute('href') !== wn) wi.setAttribute('href', wn);
     plate();
@@ -3627,6 +4131,7 @@ var PPP = (function () {
     var d = S.dec.filter(function (x) { return x.type === 'story'; })[0];
     var diss = S.studies.filter(function (s) { return s.diss; })[0];
     if (diss && d && d.ref === diss.id) return { t: 'Aus deiner Promotion liegen noch unveröffentlichte Daten. Bau daraus dein erstes Manuskript: Welcher Befund trägt die Geschichte?', b: 'Manuskript planen', a: 'dec', x: d.id };
+    if (S.pi && !S.pi.spec) return { t: 'Dein eigenes Profil: Wähle deinen Schwerpunkt, verteile Fähigkeitspunkte und such dir ein Talent aus.', b: 'Profil einrichten', a: 'sheet', x: 'profil' };
     if (!S.studies.some(function (s) { return !s.diss && s.phase !== 'done'; }) && S.stats.studies === 0) return { t: 'Plane deine erste eigene Studie: Fragestellung, Replikate, Messgrößen. Im Winter gehen nur Bodenproben, Vegetation erst ab Juni.', b: 'Studie planen', a: 'plan' };
     if (fieldWaiting() && R.feld < 0.5) return { t: 'Eine Feldkampagne wartet auf Vorbereitung, aber niemand ist draußen. Stell deine Abwesenheitsnotiz auf »Feldkampagne« oder teile jemanden fürs Feld ein.', b: 'Abwesenheitsnotiz', a: 'sheet', x: 'away' };
     if (labWaiting() > 0.5 && R.labor < 0.5) return { t: 'Im Labor warten Proben, aber niemand misst. Stell deine Abwesenheitsnotiz auf »Labortage« oder teile jemanden fürs Labor ein.', b: 'Abwesenheitsnotiz', a: 'sheet', x: 'away' };
@@ -3634,7 +4139,10 @@ var PPP = (function () {
     if (!S.staff.length) return { t: 'Allein schaffst du Feld, Labor und Schreibtisch nicht gleichzeitig. Stell eine Hilfskraft ein.', b: 'Zum Team', a: 'goto', x: 'team' };
     if (!Object.keys(S.modules).length && !S.projects.some(function (p) { return p.type === 'lecture'; })) return { t: 'Dein Lehrdeputat: ' + P.CAREER[S.career].sws + ' SWS. Entwirf eine Lehrveranstaltung, bevor das Semester endet.', b: 'Zur Lehre', a: 'goto', x: 'team' };
     if (!S.grants.length && !S.grantSubs.length && !S.projects.some(function (p) { return p.type === 'grant'; })) return { t: 'Mehr Personal braucht Drittmittel. Die Uni-Anschubfinanzierung ist ein guter Anfang.', b: 'Antrag schreiben', a: 'sheet', x: 'grant' };
-    if (S.admin > 25) return { t: 'Dein Posteingang quillt über und bremst dich. Stell die Abwesenheitsnotiz eine Weile auf »Mails & Verwaltung« oder hol dir eine Teamassistenz.', b: 'Abwesenheitsnotiz', a: 'sheet', x: 'away' };
+    var sr = P.REGIONS.filter(function (Rg) { return !P.synthBlock(S, Rg.id); })[0];
+    if (sr) return { t: 'Die Langzeitreihe ' + esc(sr.name) + ' reicht für eine Synthese: belastbare Befunde aus vielen Jahren.', b: 'Zum Gebiet', a: 'region', x: sr.id };
+    if (S.pi && (S.pi.pts > 0 || S.pi.picks > 0)) return { t: 'In deinem Profil ist etwas frei: ' + [S.pi.pts ? S.pi.pts + (S.pi.pts === 1 ? ' Fähigkeitspunkt' : ' Fähigkeitspunkte') : '', S.pi.picks ? S.pi.picks + (S.pi.picks === 1 ? ' Talent' : ' Talente') : ''].filter(Boolean).join(' und ') + '.', b: 'Profil', a: 'sheet', x: 'profil' };
+    if (S.admin > P.adminThreshold(S)) return { t: 'Dein Posteingang quillt über und bremst dich. Stell die Abwesenheitsnotiz eine Weile auf »Mails & Verwaltung« oder hol dir eine Teamassistenz.', b: 'Abwesenheitsnotiz', a: 'sheet', x: 'away' };
     if (P.careerReady(S) && !S.apply) return { t: 'Du erfüllst alle Voraussetzungen für: ' + esc(P.CAREER[S.career + 1].name) + '.', b: 'Lebenslauf', a: 'sheet', x: 'cv' };
     return null;
   }
@@ -3850,7 +4358,7 @@ var PPP = (function () {
     var status = '', action = '', detail = '';
     if (st.phase === 'permit') status = '<p class="small" data-k="stpermit:' + st.id + '"></p>' + bar('stpermit:' + st.id);
     if (st.phase === 'field') {
-      status = '<p class="small"><b>Kampagne ' + Math.min(st.k, st.camp.done + 1) + ' von ' + st.k + '.</b> <span data-k="stprep:' + st.id + '"></span></p>' + bar('stprep:' + st.id);
+      status = '<p class="small"><b>Kampagne ' + Math.min(st.k, st.camp.done + 1) + ' von ' + st.k + ', ' + esc(regName(st.reg)) + '.</b> <span data-k="stprep:' + st.id + '"></span></p>' + bar('stprep:' + st.id);
       var td = S.dec.filter(function (d) { return d.type === 'termin' && d.ref === st.id; })[0];
       if (td) action = '<button class="btn primary wide" data-a="dec" data-x="' + td.id + '">' + ic('wave') + 'Feldtermin wählen</button>';
       detail += transect(st);
@@ -3865,7 +4373,7 @@ var PPP = (function () {
       status = '<p class="small" data-k="stan:' + st.id + '"></p>' + bar('stan:' + st.id);
       if (sd) action = '<button class="btn primary wide" data-a="dec" data-x="' + sd.id + '">' + ic('scatter') + 'Statistikmodell wählen</button>';
     }
-    detail = '<p class="small ask">' + esc(st.ask) + '</p><p class="chips"><span class="chip">' + (st.diss ? 'Promotionsdaten' : 'n = ' + st.n + ' je Gruppe') + '</span><span class="chip">' + st.k + (st.k === 1 ? ' Kampagne' : ' Kampagnen') + '</span><span class="chip">' +
+    detail = '<p class="small ask">' + esc(st.ask) + '</p><p class="chips">' + (st.reg ? '<span class="chip">' + esc(regName(st.reg)) + '</span>' : '') + '<span class="chip">' + (st.diss ? 'Promotionsdaten' : st.synth ? 'Langzeitreihe' : 'n = ' + st.n + ' je Gruppe') + '</span><span class="chip">' + st.k + (st.k === 1 ? ' Kampagne' : ' Kampagnen') + '</span><span class="chip">' +
       esc(st.params.map(function (p) { return P.PARAMM[p].short; }).join(', ')) + '</span>' + (st.cost ? '<span class="chip">' + eurC(st.cost) + ' bisher</span>' : '') + '</p>' + detail;
     var prio = total > 1 ? '<div class="prio"><button class="icon-btn" data-a="prio" data-x="' + st.id + '" data-y="-1" aria-label="Höhere Priorität"' + (i === 0 ? ' disabled' : '') + '>' + ic('up') + '</button><button class="icon-btn" data-a="prio" data-x="' + st.id + '" data-y="1" aria-label="Niedrigere Priorität"' + (i === total - 1 ? ' disabled' : '') + '>' + ic('down') + '</button></div>' : '';
     var foot = '<div class="study-foot"><button class="linkish" data-a="fold" data-x="' + key + '" aria-expanded="' + open + '">' + (open ? 'Weniger' : 'Details') + ic('chev', open ? 'turn open' : 'turn') + '</button><span class="small muted">Leitung: ' + esc(lead) + '</span>' + prio + '</div>';
@@ -3954,6 +4462,20 @@ var PPP = (function () {
     for (var i = 1; i <= 5; i++) s += i <= v ? '<i class="f"></i>' : (i === v + 1 && part > 0.03 ? '<i class="p" style="--fill:' + Math.round(part * 100) + '%"></i>' : '<i></i>');
     return '<span class="pips" aria-label="' + v + ' von 5">' + s + '</span>';
   }
+  function piPips(v, part) {
+    var s = '';
+    for (var i = 1; i <= P.PI_MAX; i++) s += i <= v ? '<i class="f"></i>' : (i === v + 1 && part > 0.03 ? '<i class="p" style="--fill:' + Math.round(part * 100) + '%"></i>' : '<i></i>');
+    return '<span class="pips" aria-label="' + v + ' von ' + P.PI_MAX + '">' + s + '</span>';
+  }
+  function meCard() {
+    var pi = S.pi, sp = pi.spec ? P.SPECM[pi.spec] : null, free = pi.pts + pi.picks;
+    return '<section class="card me"><header class="card-head"><h2>Du</h2><span class="chip">' + esc(P.CAREER[S.career].short) + '</span></header>' +
+      '<div class="row-main"><b>Dr. ' + esc(S.name) + '</b><small>' + (sp ? 'Schwerpunkt ' + esc(sp.name) + ' · AG ' + esc(lastName(S.name)) : 'Schwerpunkt noch offen') + '</small></div>' +
+      '<div class="skills">' + P.PI_SKILLS.map(function (k) { return '<span class="sk">' + P.PI_SKILL_NAME[k] + piPips(pi.sk[k], pi.xp[k] || 0) + '</span>'; }).join('') + '</div>' +
+      (pi.talents.length ? '<p class="chips">' + pi.talents.map(function (t) { return '<span class="trait">' + esc(P.TALM[t].name) + '</span>'; }).join('') + '</p>' : '') +
+      (free ? '<p class="alert ok">' + ic('star') + '<span>' + [pi.pts ? pi.pts + (pi.pts === 1 ? ' Fähigkeitspunkt' : ' Fähigkeitspunkte') : '', pi.picks ? pi.picks + (pi.picks === 1 ? ' Talent' : ' Talente') : ''].filter(Boolean).join(' und ') + ' frei.</span></p>' : '') +
+      '<div class="p-actions"><button class="btn sm' + (free || !sp ? ' primary' : '') + '" data-a="sheet" data-x="profil">' + (sp ? 'Profil und Fähigkeiten' : 'Profil einrichten') + '</button></div></section>';
+  }
   function skills(sk, xp) { return '<div class="skills">' + P.SKILLS.map(function (k) { return sk[k] == null ? '' : '<span class="sk">' + P.SKILL_NAME[k] + pips(sk[k], xp ? xp[k] || 0 : 0) + '</span>'; }).join('') + '</div>'; }
   function pathLine(path) {
     if (!path || path.length < 2) return '';
@@ -3986,7 +4508,8 @@ var PPP = (function () {
     var phd = p.role === 'phd' ? '<p class="small phd">Promotion: Kapitel ' + p.ch + ' von 3 eingereicht, ' + p.pub + ' publiziert. Leitet ' + P.leadLoad(S, p.id) + ' Studie' + (P.leadLoad(S, p.id) === 1 ? '' : 'n') + '.</p>' :
       Rl.lead ? '<p class="small phd">Leitet ' + P.leadLoad(S, p.id) + ' von 2 Studien.</p>' : '';
     return '<li class="person"><div class="p-top"><div class="row-main"><b>' + esc(p.name) + (p.title ? ' <span class="chip ok">' + esc(p.title) + '</span>' : '') + '</b><small>' + esc(P.roleLabel(p)) + ' · ' + eur(Rl.salary + (p.bonus || 0)) + ' pro Woche · ' + esc(Rl.note) + '</small></div><small class="muted right" data-k="contract:' + p.id + '"></small></div>' +
-      skills(p.sk, p.xp) + traitTag(p.trait) + pathLine(p.path) + phd + (p.away > 0 ? '<p class="small warn-t">Gerade nicht da: Fortbildung, Tagung oder frei.</p>' : '') +
+      skills(p.sk, p.xp) + (p.focus ? '<small class="muted">Entwicklungsziel: ' + P.SKILL_NAME[p.focus] + '</small>' : '') + traitTag(p.trait) + (p.perks || []).map(traitTag).join('') + pathLine(p.path) + phd +
+      (S.dec.some(function (d) { return d.type === 'talent' && d.ref === p.id; }) ? '<button class="btn sm primary" data-a="dec" data-x="' + S.dec.filter(function (d) { return d.type === 'talent' && d.ref === p.id; })[0].id + '">' + ic('star') + 'Neue Stärke wählen</button>' : '') + (p.away > 0 ? '<p class="small warn-t">Gerade nicht da: Fortbildung, Tagung oder frei.</p>' : '') +
       '<div class="mot"><span class="eyebrow">Motivation</span>' + bar('mot:' + p.id, 'thin mot') + '<small data-k="mot:' + p.id + '"></small></div>' +
       '<div class="p-actions">' + (Rl.station ? '<div class="seg" role="group" aria-label="Station">' + P.STATIONS.map(function (st) { return '<button data-a="assign" data-x="' + p.id + '" data-y="' + st + '" aria-pressed="' + (p.st === st) + '">' + ST_SHORT[st] + '</button>'; }).join('') + '</div>' : '<span class="small muted">Arbeitet die Verwaltung ab.</span>') +
       '<button class="btn sm" data-a="dev" data-x="' + p.id + '">Entwickeln</button>' +
@@ -4010,6 +4533,7 @@ var PPP = (function () {
       '<p class="small muted">Personalkosten <span data-k="salaries"></span>. Einnahmen sind Grundausstattung plus laufende Drittmittel.</p>' +
       (S.money < 0 ? '<p class="alert bad">' + ic('lock') + 'Haushaltssperre: Niemand kann eingestellt werden, Verbrauchsmaterial wird nicht bestellt, und bei hohen Schulden beendet die Verwaltung Verträge.</p>' : '') +
       '<div class="row"><div class="row-main"><b>Grillabend am Deich</b><small data-k="party"></small></div>' + (pb ? lockTag('Bald wieder') : '<button class="btn sm" data-a="party" data-cost="' + pc + '">' + eur(pc) + '</button>') + '</div></section>';
+    out += meCard();
     out += pipelineCard();
     out += sec('Arbeitsgruppe', S.staff.length ? '<ul class="people">' + S.staff.map(personCard).join('') + '</ul>' : '<p class="muted">Noch arbeitest du allein. Weiter unten liegen Bewerbungen.</p>',
       '<small class="muted">' + P.STATIONS.map(function (st) { return ST_SHORT[st] + ' ' + P.staffAt(S, st).length + '/' + P.slots(S, st); }).join(' · ') + '</small>');
@@ -4073,10 +4597,101 @@ var PPP = (function () {
     return '<section class="bag"><header class="bag-strip"><h2 class="bag-name">' + P.ST[st].name + '</h2><span class="tape">Stufe ' + L + '</span></header>' +
       '<p class="bag-level">' + esc(P.ST[st].levels[L - 1]) + ' · ' + P.staffAt(S, st).length + ' von ' + P.slots(S, st) + ' Arbeitsplätzen belegt</p>' + visual + (extra || '') + lvlRow(st) + '</section>';
   }
+  /* Karte der Feldgebiete: vereinfachte Küstenlinie, 45,7 px je Längengrad und 79 px je Breitengrad */
+  var GEO = {
+    land: [8.66, 55.2, 9.7, 55.2, 9.62, 55.1, 9.75, 55.05, 10.02, 54.98, 9.92, 54.88, 9.75, 54.9, 9.62, 54.86, 9.45, 54.83, 9.42, 54.79, 9.55, 54.8, 9.75, 54.8, 9.9, 54.76,
+      9.98, 54.68, 10.03, 54.6, 10.02, 54.55, 9.84, 54.48, 10.02, 54.46, 10.2, 54.45, 10.15, 54.36, 10.14, 54.33, 10.2, 54.38, 10.22, 54.41, 10.4, 54.42, 10.6, 54.36, 10.68, 54.32,
+      10.85, 54.36, 10.98, 54.38, 11.08, 54.37, 11.1, 54.3, 11.08, 54.22, 10.96, 54.15, 10.82, 54.1, 10.78, 54, 10.88, 53.96, 11.05, 53.98, 11.2, 54, 11.35, 53.95, 11.46, 53.9,
+      11.43, 54, 11.55, 54.05, 11.62, 54.11, 11.74, 54.15, 11.95, 54.17, 12.08, 54.18, 12.25, 54.25, 12.37, 54.33, 12.42, 54.38, 12.5, 54.47, 12.6, 54.45, 12.85, 54.44,
+      12.95, 54.4, 13.08, 54.32, 13.2, 54.25, 13.3, 54.21, 13.38, 54.16, 13.45, 54.11, 13.6, 54.14, 13.78, 54.15, 13.82, 54.17, 13.92, 54.08, 14, 54, 14, 53.3, 7, 53.3, 7, 53.45,
+      7.05, 53.48, 7.1, 53.56, 7.18, 53.62, 7.35, 53.68, 7.57, 53.68, 7.8, 53.7, 8.03, 53.71, 8.1, 53.62, 8.13, 53.52, 8.1, 53.45, 8.17, 53.38, 8.28, 53.42, 8.24, 53.52,
+      8.3, 53.6, 8.42, 53.62, 8.52, 53.53, 8.5, 53.42, 8.56, 53.42, 8.58, 53.55, 8.55, 53.65, 8.52, 53.72, 8.6, 53.83, 8.7, 53.88, 8.9, 53.83, 9.25, 53.79, 9.5, 53.61,
+      9.7, 53.54, 9.97, 53.54, 9.7, 53.58, 9.55, 53.66, 9.42, 53.78, 9.15, 53.9, 8.95, 53.97, 8.85, 54.03, 8.98, 54.08, 8.85, 54.13, 8.88, 54.22, 8.9, 54.24, 8.97, 54.29,
+      8.78, 54.28, 8.65, 54.28, 8.58, 54.32, 8.62, 54.38, 8.8, 54.42, 8.95, 54.45, 9.05, 54.48, 8.95, 54.5, 8.8, 54.47, 8.78, 54.51, 8.86, 54.55, 8.86, 54.58, 8.82, 54.61,
+      8.8, 54.66, 8.69, 54.73, 8.65, 54.8, 8.62, 54.88, 8.66, 54.93, 8.68, 55.05],
+    isl: [
+      [8.37, 55.06, 8.44, 55.05, 8.41, 55.02, 8.37, 54.97, 8.36, 54.91, 8.48, 54.89, 8.43, 54.87, 8.34, 54.86, 8.32, 54.79, 8.3, 54.75, 8.28, 54.76, 8.29, 54.85, 8.3, 54.93, 8.33, 55.01],
+      [8.4, 54.7, 8.45, 54.745, 8.56, 54.745, 8.61, 54.71, 8.56, 54.68, 8.45, 54.68],
+      [8.33, 54.62, 8.34, 54.68, 8.38, 54.69, 8.39, 54.65, 8.37, 54.62],
+      [8.6, 54.5, 8.62, 54.545, 8.7, 54.545, 8.71, 54.51, 8.66, 54.49],
+      [8.52, 54.56, 8.55, 54.585, 8.59, 54.57, 8.56, 54.55],
+      [8.55, 54.635, 8.62, 54.65, 8.67, 54.635, 8.6, 54.62],
+      [8.485, 53.905, 8.49, 53.93, 8.515, 53.935, 8.525, 53.915, 8.505, 53.9],
+      [7, 53.69, 7.12, 53.686, 7.12, 53.67, 7, 53.674],
+      [7.13, 53.706, 7.2, 53.722, 7.3, 53.718, 7.3, 53.7, 7.15, 53.695],
+      [7.35, 53.736, 7.41, 53.739, 7.41, 53.725, 7.35, 53.724],
+      [7.45, 53.756, 7.52, 53.768, 7.58, 53.758, 7.58, 53.742, 7.46, 53.742],
+      [7.67, 53.777, 7.72, 53.788, 7.8, 53.775, 7.8, 53.759, 7.68, 53.761],
+      [7.85, 53.796, 7.95, 53.798, 7.95, 53.782, 7.85, 53.781],
+      [11.02, 54.44, 11.08, 54.52, 11.2, 54.53, 11.31, 54.47, 11.25, 54.41, 11.12, 54.4, 11.05, 54.41],
+      [13.13, 54.4, 13.17, 54.5, 13.25, 54.57, 13.35, 54.68, 13.45, 54.68, 13.43, 54.6, 13.55, 54.58, 13.65, 54.58, 13.67, 54.5, 13.6, 54.46, 13.62, 54.37, 13.72, 54.3,
+        13.66, 54.28, 13.55, 54.32, 13.45, 54.32, 13.32, 54.25, 13.2, 54.28, 13.12, 54.33],
+      [13.08, 54.47, 13.1, 54.6, 13.13, 54.58, 13.11, 54.47]
+    ],
+    dk: [
+      [10, 55.2, 10.05, 55.12, 10.25, 55.06, 10.45, 55.05, 10.62, 55.08, 10.75, 55.15, 10.78, 55.2],
+      [10.62, 54.73, 10.72, 54.95, 10.8, 55.12, 10.86, 55.1, 10.78, 54.9, 10.7, 54.73],
+      [10.2, 54.86, 10.3, 54.9, 10.45, 54.86, 10.4, 54.83],
+      [10.95, 54.8, 11.05, 54.88, 11.3, 54.92, 11.6, 54.9, 11.85, 54.85, 11.88, 54.72, 11.7, 54.65, 11.45, 54.62, 11.2, 54.68, 11.05, 54.72],
+      [11.88, 54.95, 12, 54.96, 12.1, 54.85, 12.05, 54.7, 11.95, 54.56, 11.88, 54.66, 11.9, 54.82],
+      [12.18, 54.95, 12.3, 55.02, 12.55, 55, 12.5, 54.95, 12.25, 54.93],
+      [11.2, 55.2, 11.25, 55.15, 11.55, 55.13, 11.75, 55.15, 11.95, 55.05, 12.1, 55.12, 12.25, 55.18, 12.3, 55.2]
+    ],
+    border: [8.66, 54.912, 9, 54.86, 9.25, 54.85, 9.42, 54.81]
+  };
+  function gx(lon) { return (lon - 7) * 45.7; }
+  function gy(lat) { return (55.2 - lat) * 79; }
+  function gpts(a) { var s = []; for (var i = 0; i < a.length; i += 2) s.push(gx(a[i]).toFixed(1) + ',' + gy(a[i + 1]).toFixed(1)); return s.join(' '); }
+  var MAP_LBL = { hallig: [10, 3, 'start'], elbe: [10, 3, 'start'], spo: [-10, 3, 'end'], neuwerk: [-10, 3, 'end'], sylt: [-10, 3, 'end'], spiek: [0, 17, 'middle'], ostsee: [0, 17, 'middle'] };
+  // mode 'inst': Antippen öffnet das Gebiet; mode 'plan': Antippen wählt das Gebiet für die Studie
+  function mapSvg(mode, sel, qid) {
+    var shapes = '<polygon class="coast" points="' + gpts(GEO.land) + '"/>' + GEO.isl.map(function (a) { return '<polygon class="coast" points="' + gpts(a) + '"/>'; }).join('') +
+      GEO.dk.map(function (a) { return '<polygon class="coast dk" points="' + gpts(a) + '"/>'; }).join('') + '<polyline class="border" points="' + gpts(GEO.border) + '"/>';
+    var lbl = '<text class="sea-l" x="' + gx(7.3).toFixed(1) + '" y="' + gy(54.42).toFixed(1) + '">Nordsee</text><text class="sea-l" x="' + gx(12.5).toFixed(1) + '" y="' + gy(54.78).toFixed(1) + '">Ostsee</text>' +
+      '<text class="land-l" x="' + gx(9.08).toFixed(1) + '" y="' + gy(55.1).toFixed(1) + '">DÄNEMARK</text><text class="land-l" x="' + gx(10.55).toFixed(1) + '" y="' + gy(53.62).toFixed(1) + '">DEUTSCHLAND</text>';
+    var cities = [['Hamburg', 9.99, 53.55, 'start'], ['Kiel', 10.13, 54.32, 'start']].map(function (c) {
+      return '<g class="city"><circle cx="' + gx(c[1]).toFixed(1) + '" cy="' + gy(c[2]).toFixed(1) + '" r="1.8"/><text x="' + (gx(c[1]) + 4).toFixed(1) + '" y="' + (gy(c[2]) + 3).toFixed(1) + '">' + c[0] + '</text></g>';
+    }).join('');
+    var mk = P.REGIONS.map(function (Rg) {
+      var rs = P.regState(S, Rg.id), open = rs.open, x = gx(Rg.lon), y = gy(Rg.lat), L = MAP_LBL[Rg.id] || [10, 3, 'start'], l = P.ortsLevel(S, Rg.id);
+      var ok = mode === 'plan' ? open && !P.regionPlanBlock(S, qid, Rg.id) : true;
+      var act = mode === 'inst' && S.studies.some(function (st) { return st.reg === Rg.id && st.phase !== 'done' && !st.synth && !st.diss; });
+      var attr = !ok ? '' : mode === 'plan' ? ' data-a="pick" data-x="reg" data-y="' + Rg.id + '"' : ' data-a="region" data-x="' + Rg.id + '"';
+      var label = Rg.name + (open ? ', Ortskenntnis ' + P.ORTS[l].name : ', noch nicht erschlossen');
+      return '<g class="mk' + (open ? '' : ' locked') + (ok ? '' : ' off') + (sel === Rg.id ? ' sel' : '') + '"' + attr + (ok ? ' tabindex="0" role="button"' : '') + ' aria-label="' + esc(label) + '">' +
+        '<circle class="hit" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="13"/>' + (sel === Rg.id ? '<circle class="ring" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="10"/>' : '') +
+        '<circle class="dot" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6.5"/>' + (open ? '<text class="lv" x="' + x.toFixed(1) + '" y="' + (y + 2.8).toFixed(1) + '">' + l + '</text>' : '') +
+        (act ? '<circle class="act" cx="' + (x + 5).toFixed(1) + '" cy="' + (y - 5).toFixed(1) + '" r="2.6"/>' : '') +
+        '<text class="lb" x="' + (x + L[0]).toFixed(1) + '" y="' + (y + L[1]).toFixed(1) + '" text-anchor="' + L[2] + '">' + esc(Rg.map) + '</text></g>';
+    }).join('');
+    return '<figure class="map"><svg viewBox="0 0 320 150" role="group" aria-label="Karte der Feldgebiete an Nord- und Ostsee"><rect class="sea" width="320" height="150"/>' + shapes + lbl + cities + mk + '</svg></figure>';
+  }
+  function unlockText(Rg) {
+    var U = Rg.unlock || {};
+    return eur(P.regUnlockCost(S, Rg.id)) + (U.career ? ', ab ' + P.CAREER[U.career].short : '') + (U.rep ? ', ' + U.rep + ' Renommee' : '');
+  }
+  function regionCard() {
+    var nOpen = P.REGIONS.filter(function (Rg) { return P.regOpen(S, Rg.id); }).length;
+    var rows = P.REGIONS.map(function (Rg) {
+      var rs = P.regState(S, Rg.id), l = P.ortsLevel(S, Rg.id), eqN = P.REQ.filter(function (e) { return rs.eq[e.id]; }).length;
+      var act = S.studies.filter(function (st) { return st.reg === Rg.id && st.phase !== 'done' && !st.synth && !st.diss; }).length;
+      var sub = rs.open ? esc(Rg.area) + ' · ' + rs.camps + (rs.camps === 1 ? ' Kampagne' : ' Kampagnen') + ' · ' + rs.years.length + (rs.years.length === 1 ? ' Datenjahr' : ' Datenjahre') + ' · Ausstattung ' + eqN + ' von ' + P.REQ.length + (act ? ' · ' + act + ' laufend' : '')
+        : esc(Rg.area) + ' · erschließen: ' + esc(unlockText(Rg));
+      return '<li class="row"><div class="row-main"><b>' + esc(Rg.name) + (rs.open ? ' <span class="chip' + (l >= 3 ? ' ok' : '') + '">' + P.ORTS[l].name + '</span>' : '') + '</b><small>' + sub + '</small></div>' +
+        '<button class="btn sm' + (rs.open ? '' : ' ghost') + '" data-a="region" data-x="' + Rg.id + '">' + (rs.open ? 'Ansehen' : 'Details') + '</button></li>';
+    }).join('');
+    var synth = P.REGIONS.filter(function (Rg) { return !P.synthBlock(S, Rg.id); });
+    return sec('Feldgebiete', mapSvg('inst') +
+      '<p class="legend"><span><i class="lg-open"></i>erschlossen, Zahl = Ortskenntnis</span><span><i class="lg-locked"></i>noch nicht erschlossen</span><span><i class="lg-act"></i>Studie läuft</span></p>' +
+      '<p class="small muted">Jede Kampagne macht dich in einem Gebiet ortskundiger. Ausstattung vor Ort kaufst du je Gebiet, Dauerplots machen jede Saison zum Datenjahr der Langzeitreihe.</p>' +
+      (synth.length ? '<p class="alert ok">' + ic('scatter') + '<span>Langzeitsynthese möglich: ' + esc(synth.map(function (x) { return x.name; }).join(', ')) + '.</span></p>' : '') +
+      '<ul class="rows">' + rows + '</ul>', '<span class="chip">' + nOpen + ' von ' + P.REGIONS.length + ' erschlossen</span>');
+  }
   function vInstitut() {
     var field = P.byPrio(S).filter(function (s) { return s.phase === 'field'; })[0];
     var out = station('feld', transect(field) + '<p class="small muted info">Feldstunden <span data-k="cap:feld"></span> · bis ' + P.maxN(S) + ' Replikate je Gruppe · Wetter <span data-k="weather"></span></p>',
       equip('feld', 'Feldausrüstung', P.UPG.filter(function (u) { return u.st === 'feld'; }).map(upgRow).join('')));
+    out += regionCard();
     out += station('labor', plateHtml() + '<p class="small muted info">Laborstunden <span data-k="cap:labor"></span> · Geräteplätze ' + P.instUsed(S) + ' von ' + P.instSlots(S) + '</p>',
       '<ul class="rows">' + P.INSTR.map(instRow).join('') + '</ul>' + equip('laborz', 'Laborzubehör', P.UPG.filter(function (u) { return u.st === 'labor'; }).map(upgRow).join('')));
     out += station('buero', '<p class="small muted info" data-k="desk"></p>', equip('buero', 'Büroausstattung', P.UPG.filter(function (u) { return u.st === 'buero'; }).map(upgRow).join('')));
@@ -4102,7 +4717,13 @@ var PPP = (function () {
     if (sheet.type === 'submit' && a.mid) return S.dec.filter(function (d) { return d.type === 'einreichen' && d.ref === a.mid; })[0];
     return null;
   }
-  function closeSheet() { if (sheet && sheet.type === 'welcome') return; sheet = null; renderSheet(); render(); }
+  function closeSheet() {
+    if (sheet && sheet.type === 'welcome') return;
+    if (sheet && sheet.type === 'neu') S.flags.v4seen = true;
+    sheet = null;
+    if (S && S.flags.onboarded && !S.flags.v4seen) { openSheet('neu'); render(); return; }
+    renderSheet(); render();
+  }
   function renderSheet() {
     var el = $('#sheet');
     if (!sheet) { el.hidden = true; document.body.classList.remove('locked'); return; }
@@ -4121,7 +4742,7 @@ var PPP = (function () {
   function openDecision(id) {
     var d = P.decision(S, id);
     if (!d) { warn('Diese Entscheidung ist schon gefallen.'); render(); return; }
-    var map = { story: 'story', stat: 'stat', termin: 'termin', kal: 'kal', einreichen: 'submit', rebuttal: 'rebuttal', vorschlag: 'vorschlag', event: 'event', tagung: 'tagung', fragerunde: 'frage', ruf: 'ruf' };
+    var map = { story: 'story', stat: 'stat', termin: 'termin', kal: 'kal', einreichen: 'submit', rebuttal: 'rebuttal', vorschlag: 'vorschlag', event: 'event', tagung: 'tagung', fragerunde: 'frage', ruf: 'ruf', talent: 'talent' };
     var a = { did: id };
     if (d.type === 'story') a.sid = d.ref;
     if (d.type === 'einreichen') a.mid = d.ref;
@@ -4131,9 +4752,9 @@ var PPP = (function () {
   var EDITORS = { wdn: 'Dr. F. Ketels', mitt: 'Prof. Dr. H. Ketels', wen: 'Dr. J. Brandt', bgl: 'Dr. S. Okoye', gce: 'Dr. P. Lindgren', natura: 'Dr. M. Kessler', ijags: 'Prof. Dr. Dr. h. c. mult. A. Smith' };
   function tideSvg(day, dl) {
     var W = 300, Hh = 46, pts = [];
-    var lw = day.lws[0];
+    var lw = day.lws[0], flat = day.nt || lw == null, wl = Math.max(-0.6, Math.min(0.8, (day.wind - 4) * 0.12));
     for (var t = 0; t <= 24.001; t += 0.5) {
-      var lvl = -Math.cos(2 * Math.PI * (t - lw) / 12.42);
+      var lvl = flat ? wl + 0.05 * Math.sin(t) : -Math.cos(2 * Math.PI * (t - lw) / 12.42);
       pts.push((t / 24 * W).toFixed(1) + ',' + (Hh / 2 - lvl * (Hh / 2 - 6)).toFixed(1));
     }
     var dx0 = dl[0] / 24 * W, dx1 = dl[1] / 24 * W;
@@ -4179,17 +4800,28 @@ var PPP = (function () {
     }).join('') + '</ul>' + (S.apply ? '<p class="small" data-k="apply"></p>' + bar('apply') : '<button class="btn primary wide" data-a="apply"' + (P.careerReady(S) ? '' : ' disabled') + '>' + (S.career + 1 === 5 ? 'Nominierung annehmen' : 'Bewerben') + '</button>') + '</div>' : '<p class="alert ok">' + ic('star') + 'Du hast den Leibniz-Preis. Mehr geht in der deutschen Wissenschaft kaum.</p>';
     var st = S.stats;
     return head('Lebenslauf') +
-      '<section class="cv"><h2 class="cv-name">Dr. ' + esc(S.name) + '</h2><p class="cv-role">' + esc(P.CAREER[S.career].name) + ' · AG ' + esc(lastName(S.name)) + ', Küsten- und Salzwiesenökologie</p>' +
+      '<section class="cv"><h2 class="cv-name">Dr. ' + esc(S.name) + '</h2><p class="cv-role">' + esc(P.CAREER[S.career].name) + ' · AG ' + esc(lastName(S.name)) + ', ' + esc(S.pi && S.pi.spec ? P.SPECM[S.pi.spec].ag : 'Küsten- und Salzwiesenökologie') + '</p>' +
       '<div class="cv-stats"><div class="stat"><span class="eyebrow">h-Index</span><b class="hbig"><i>h</i> = <span data-k="h"></span></b></div><div class="stat"><span class="eyebrow">Zitationen</span><b data-k="cites"></b></div><div class="stat"><span class="eyebrow">Publikationen</span><b>' + st.papers + '</b></div><div class="stat"><span class="eyebrow">Renommee</span><b data-k="Lrep"></b></div></div></section>' +
+      '<button class="btn ghost wide" data-a="sheet" data-x="profil">' + ic('star') + 'Profil, Fähigkeiten und Talente' + (S.pi && S.pi.pts + S.pi.picks ? ' (' + (S.pi.pts + S.pi.picks) + ' frei)' : '') + '</button>' +
       '<h3 class="eyebrow">Zitationsprofil</h3>' + hChart() +
       '<h3 class="eyebrow">Karriereleiter</h3><ol class="ladder">' + steps + '</ol>' + next +
       '<h3 class="eyebrow">Publikationsliste</h3>' + (sorted.length ? '<ol class="pubs">' + pubs + '</ol>' + (sorted.length > 10 ? '<button class="btn ghost wide" data-a="pubs">' + (showAllPubs ? 'Nur die zehn meistzitierten' : 'Alle ' + sorted.length + ' anzeigen') + '</button>' : '') + (S.arch.n ? '<p class="small muted">Dazu ' + S.arch.n + ' ältere, selten zitierte Arbeiten im Archiv.</p>' : '') : '<p class="muted">Noch nichts erschienen.</p>') +
+      chronHtml() +
       '<h3 class="eyebrow">Erfolge</h3><ul class="achs">' + P.ACH.map(function (a) { var got = !!S.ach[a.id]; return '<li class="ach' + (got ? ' got' : '') + '">' + ic(got ? 'star' : 'lock') + '<b>' + esc(a.name) + '</b><small>' + esc(a.desc) + '</small></li>'; }).join('') + '</ul>' +
       '<button class="btn ghost wide" data-a="sheet" data-x="stats">' + ic('scatter') + 'Statistik und Verläufe</button>' +
       '<h3 class="eyebrow">Einstellungen</h3><label class="eyebrow" for="nm">Name in der Publikationsliste</label><div class="inline"><input id="nm" type="text" maxlength="40" value="' + esc(S.name) + '" autocomplete="name"><button class="btn sm" data-a="rename">Übernehmen</button></div>' +
+      '<h3 class="eyebrow">Spieltempo</h3><div class="seg">' + P.TEMPOS.map(function (t) { return '<button data-a="tempo" data-x="' + t.v + '" aria-pressed="' + (P.tempo(S) === t.v) + '">' + t.name + '</button>'; }).join('') + '</div>' +
+      '<p class="small muted">Eine Spielwoche dauert jetzt ' + minText(P.tempo(S)) + '. Gilt auch für die Zeit, in der die App geschlossen ist.</p>' +
       '<p class="small muted" data-k="save"></p><p class="small muted">Abwesenheitslimit: <span data-k="offcap"></span>. Längere Pausen werden nur bis zu diesem Limit nachgerechnet.</p>' +
       '<h3 class="eyebrow">Spielstand übertragen</h3><p class="small muted">Mit einem Code ziehst du deinen Spielstand in die Handy-App oder auf ein anderes Gerät um.</p><div class="two"><button class="btn ghost" data-a="sheet" data-x="export">Code erzeugen</button><button class="btn ghost" data-a="sheet" data-x="import">Code einfügen</button></div>' + cloudHtml() +
       '<div class="two"><button class="btn ghost" data-a="sheet" data-x="help">Spielprinzip</button><button class="btn ghost danger" data-a="reset">Neu beginnen</button></div>';
+  }
+  function chronHtml() {
+    var c = S.chron || [];
+    if (!c.length) return '';
+    var shown = openD.chron ? c : c.slice(0, 10);
+    return '<h3 class="eyebrow">Chronik der AG</h3><ol class="tl chron">' + shown.map(function (e) { return '<li><b>' + esc(e.t) + '</b><small>' + weekLabel(e.wk) + '</small></li>'; }).join('') + '</ol>' +
+      (c.length > 10 ? '<button class="btn ghost wide" data-a="chron">' + (openD.chron ? 'Nur die letzten zehn' : 'Alle ' + c.length + ' Einträge') + '</button>' : '');
   }
   function hChart() {
     var c = P.citeList(S).sort(function (a, b) { return b - a; });
@@ -4217,14 +4849,41 @@ var PPP = (function () {
 
   var SHEETS = {
     welcome: function () {
+      var a = sheet.args;
+      if (!a.step) a.step = 1;
+      if (!a.add) a.add = {};
+      if (!a.spec) a.spec = 'bgc';
+      if (!a.tempo) a.tempo = 2;
+      if (a.name == null) a.name = S.name;
+      if (a.step === 2) {
+        var used = P.PI_SKILLS.reduce(function (s, k) { return s + (a.add[k] || 0); }, 0), sp = P.SPECM[a.spec];
+        var skRows = P.PI_SKILLS.map(function (k) {
+          var v = 2 + (sp.sk === k ? 1 : 0) + (a.add[k] || 0);
+          return '<li class="row"><div class="row-main"><b>' + P.PI_SKILL_NAME[k] + ' ' + piPips(v, 0) + '</b><small>' + P.PI_SKILL_DESC[k] + '</small></div><div class="stepper-ctl">' +
+            '<button class="icon-btn" data-a="wadd" data-x="' + k + '" data-y="-1" aria-label="' + P.PI_SKILL_NAME[k] + ' senken"' + ((a.add[k] || 0) <= 0 ? ' disabled' : '') + '>−</button><b>' + v + '</b>' +
+            '<button class="icon-btn" data-a="wadd" data-x="' + k + '" data-y="1" aria-label="' + P.PI_SKILL_NAME[k] + ' erhöhen"' + (used >= 3 || (a.add[k] || 0) >= 2 ? ' disabled' : '') + '>+</button></div></li>';
+        }).join('');
+        var tal = a.talent ? P.TALM[a.talent] : null;
+        return '<div class="welcome"><h2 class="logo" id="sheet-title">Dein Profil</h2><p>Wer bist du als Forscher*in? Der Schwerpunkt gibt dir eine Fähigkeit dazu und stärkt Studien zu deinen Themen. Der Rest wächst mit der Karriere und mit dem, was du tust.</p>' +
+          '<h3 class="eyebrow">Schwerpunkt</h3><ul class="opts">' + P.SPECS.map(function (x) {
+            return '<li><button class="opt" data-a="wspec" data-x="' + x.id + '" aria-pressed="' + (a.spec === x.id) + '"><span class="row-main"><b>' + esc(x.name) + ' <span class="chip">+1 ' + P.PI_SKILL_NAME[x.sk] + '</span></b><small>' + esc(x.desc) + '</small></span>' + (a.spec === x.id ? ic('check') : '') + '</button></li>';
+          }).join('') + '</ul>' +
+          '<h3 class="eyebrow">Fähigkeiten · noch ' + (3 - used) + ' von 3 Punkten</h3><p class="small muted">Höchstens zwei Punkte je Fähigkeit. Übrige Punkte kannst du später vergeben.</p><ul class="rows">' + skRows + '</ul>' +
+          '<h3 class="eyebrow">Talent</h3><div class="chips topics">' + P.TALENTS.map(function (t) { return '<button class="chip-btn" data-a="wtal" data-x="' + t.id + '" aria-pressed="' + (a.talent === t.id) + '">' + esc(t.name) + '</button>'; }).join('') + '</div>' +
+          (tal ? '<p class="sum"><b>' + esc(tal.name) + ':</b> ' + esc(tal.desc) + '</p>' : '<p class="small muted">Ein Talent jetzt, ein weiteres mit jeder Karrierestufe.</p>') +
+          '<h3 class="eyebrow">Spieltempo</h3><div class="seg">' + P.TEMPOS.map(function (t) { return '<button data-a="wtempo" data-x="' + t.v + '" aria-pressed="' + (a.tempo === t.v) + '">' + t.name + '</button>'; }).join('') + '</div>' +
+          '<p class="small muted">Eine Spielwoche dauert ' + minText(a.tempo) + '. Das Tempo änderst du jederzeit im Lebenslauf.</p>' +
+          '<div class="two"><button class="btn ghost" data-a="wstep" data-x="1">Zurück</button><button class="btn primary" data-a="begin">Stelle antreten</button></div></div>';
+      }
       return '<div class="welcome"><h2 class="logo" id="sheet-title">Proben, Paper, Professur</h2>' +
         (oldSave ? '<p class="alert warn">Version 2 mit neuem Spielsystem. Dafür startest du einen frischen Spielstand.</p>' : '') +
         '<p>Du hast deine erste Stelle als Postdoc angetreten: ein Schreibtisch im Flur, eine Laborbank und eine Salzwiese vor der Tür. Am Ende der Karriereleiter wartet der Leibniz-Preis.</p>' +
         '<ol class="loop"><li><b>Studie planen:</b> Frage, Replikate, Messgrößen, Kampagnen.</li><li><b>Feld:</b> den richtigen Termin nach Tide und Wetter wählen.</li><li><b>Labor:</b> Geräte kalibrieren, Proben messen, bevor sie verderben.</li><li><b>Auswertung:</b> das richtige Statistikmodell, sonst Pseudoreplikation.</li><li><b>Manuskript:</b> Befunde zur Geschichte bauen, einreichen, auf Gutachten antworten.</li></ol>' +
         '<p>Nebenbei führst du eine Arbeitsgruppe und entwickelst sie weiter, vom Hiwi bis zur Professur. Du hältst Lehre, fährst auf Tagungen, schreibst Gutachten und Anträge und kämpfst gegen deinen Posteingang.</p>' +
-        '<p class="small muted">Eine Minute ist eine Spielwoche. Die Zeit läuft auch bei geschlossener App weiter. Was du dann nicht selbst entscheidest, entscheidet dein Team, meist ordentlich, selten optimal.</p>' +
-        '<label class="eyebrow" for="nm0">Dein Name für die Publikationsliste</label><input id="nm0" type="text" maxlength="40" value="' + esc(S.name) + '" autocomplete="name">' +
-        '<button class="btn primary wide" data-a="begin">Stelle antreten</button></div>';
+        '<p>Geforscht wird in sieben Feldgebieten zwischen Sylt und der Ostsee. Je öfter du in einem Gebiet unterwegs bist, desto besser kennst du es, und aus vielen Jahren Daten werden Langzeitreihen.</p>' +
+        '<p class="small muted">Eine Spielwoche dauert zwei Minuten, das Tempo stellst du gleich ein. Die Zeit läuft auch bei geschlossener App weiter. Was du dann nicht selbst entscheidest, entscheidet dein Team, meist ordentlich, selten optimal.</p>' +
+        '<label class="eyebrow" for="nm0">Dein Name für die Publikationsliste</label><input id="nm0" type="text" maxlength="40" value="' + esc(a.name) + '" autocomplete="name">' +
+        '<button class="btn primary wide" data-a="wstep" data-x="2">Weiter: dein Profil</button><button class="btn ghost wide" data-a="begin">Gleich loslegen, Profil später</button></div>';
     },
     back: function () {
       var o = sheet.args.out, b = o.before, a = o.after, act = P.ACTM[sheet.args.act];
@@ -4255,11 +4914,12 @@ var PPP = (function () {
       if (!a.n) a.n = Math.min(6, P.maxN(S));
       if (!a.k) a.k = 2;
       if (!a.lead) { var free = P.leadOptions(S).filter(function (l) { return l.load < 2; }); a.lead = free.length ? free[free.length - 1].id : 'pi'; }
-      var plan = { q: a.q, n: a.n, k: a.k, params: a.params.slice(), lead: a.lead };
+      if (!a.reg || P.regionPlanBlock(S, a.q, a.reg)) a.reg = P.bestRegion(S, a.q);
+      var plan = { q: a.q, n: a.n, k: a.k, params: a.params.slice(), lead: a.lead, reg: a.reg };
       var err = P.planCheck(S, plan), est = P.planEstimate(S, plan);
       var optQ = function (q) {
-        var b = P.questionBlock(S, q.id), on = a.q === q.id, rep = (S.qno && S.qno[q.id]) || 0;
-        return '<li><button class="opt" data-a="pick" data-x="q" data-y="' + q.id + '" aria-pressed="' + on + '"' + (b ? ' disabled' : '') + '><span class="row-main"><b>' + esc(q.title) + '</b><small>' + esc(q.q) + '</small><small>' + (b ? esc(b) : 'Neuheit ×' + n2(P.questionNovelty(S, q.id)) + (rep ? ' (schon ' + rep + (rep === 1 ? ' Studie' : ' Studien') + ' dazu)' : '') + ' · ' + esc(q.groups[0]) + ' gegen ' + esc(q.groups[1])) + '</small></span>' + (on ? ic('check') : b ? ic('lock') : '') + '</button></li>';
+        var b = P.questionBlock(S, q.id), on = a.q === q.id, rep = (S.qno && S.qno[q.id]) || 0, qr = b ? null : (P.regionPlanBlock(S, q.id, a.reg) ? P.bestRegion(S, q.id) : a.reg);
+        return '<li><button class="opt" data-a="pick" data-x="q" data-y="' + q.id + '" aria-pressed="' + on + '"' + (b ? ' disabled' : '') + '><span class="row-main"><b>' + esc(q.title) + '</b><small>' + esc(q.q) + '</small><small>' + (b ? esc(b) : 'Neuheit ×' + n2(P.questionNovelty(S, q.id, qr)) + (qr !== a.reg ? ' (' + esc(P.REGM[qr].map) + ')' : '') + (rep ? ' (schon ' + rep + (rep === 1 ? ' Studie' : ' Studien') + ' dazu)' : '') + ' · ' + esc(q.groups[0]) + ' gegen ' + esc(q.groups[1])) + '</small></span>' + (on ? ic('check') : b ? ic('lock') : '') + '</button></li>';
       };
       var openQ = qs.filter(function (q) { return !P.questionBlock(S, q.id); }), lockQ = qs.filter(function (q) { return P.questionBlock(S, q.id); });
       var qlist = '<ul class="opts">' + openQ.map(optQ).join('') + '</ul>' + (lockQ.length ? '<details class="equip" data-d="qlocked"' + (openD.qlocked ? ' open' : '') + '><summary><span>Gesperrte Fragestellungen (' + lockQ.length + ')</span>' + ic('chev', 'turn') + '</summary><ul class="opts">' + lockQ.map(optQ).join('') + '</ul></details>' : '');
@@ -4273,13 +4933,21 @@ var PPP = (function () {
         return '<button data-a="pick" data-x="lead" data-y="' + l.id + '" aria-pressed="' + on + '"' + (full ? ' disabled' : '') + '>' + esc(firstName(l.name)) + '<small>' + (full ? 'ausgelastet' : 'Statistik ' + n0(l.sk.stat)) + '</small></button>';
       }).join('');
       var inst = Object.keys(est.inst).map(function (id) { return (id === 'extern' ? 'Sequenzierung' : P.INSTM[id].name) + ' ' + n0(est.inst[id]); }).join(', ');
+      var regs = P.REGIONS.filter(function (Rg) { return P.regOpen(S, Rg.id); }).map(function (Rg) {
+        var rb = P.regionPlanBlock(S, a.q, Rg.id), on = a.reg === Rg.id, pf = P.prepFactor(S, Rg.id), pw = P.permitWeeks(S, Rg.id), tc = P.travelCost(S, Rg.id);
+        var info = rb ? esc(rb) : 'Ortskenntnis ' + P.ORTS[P.ortsLevel(S, Rg.id)].name + ' · Neuheit ×' + n2(P.questionNovelty(S, a.q, Rg.id)) + ' · Vorbereitung ' + (pf >= 1 ? '+' : '−') + pct(Math.abs(pf - 1)) +
+          ' · Genehmigung ' + (pw ? wks(pw) : 'sofort') + (tc ? ' · Reise ' + eur(tc) : '') + (Rg.brut ? ' · Brutzeit Mai bis Juni' : '') + (Rg.notide ? ' · kein Tidenhub' : '');
+        return '<li><button class="opt" data-a="pick" data-x="reg" data-y="' + Rg.id + '" aria-pressed="' + on + '"' + (rb ? ' disabled' : '') + '><span class="row-main"><b>' + esc(Rg.name) + '</b><small>' + info + '</small></span>' + (on ? ic('check') : rb ? ic('lock') : '') + '</button></li>';
+      }).join('');
+      var nLocked = P.REGIONS.filter(function (Rg) { return !P.regOpen(S, Rg.id); }).length;
       return head('Neue Studie planen', 'Mehr Replikate und Kampagnen machen Effekte nachweisbar, kosten aber Feld- und Laborzeit.') +
         '<h3 class="eyebrow">Fragestellung</h3>' + qlist +
+        '<h3 class="eyebrow">Feldgebiet</h3>' + mapSvg('plan', a.reg, a.q) + '<ul class="opts">' + regs + '</ul>' + (nLocked ? '<p class="small muted">' + nLocked + ' weitere Gebiete erschließt du im Institut unter »Feldgebiete«.</p>' : '') +
         '<h3 class="eyebrow">Messgrößen</h3><ul class="opts">' + params + '</ul>' +
         '<h3 class="eyebrow">Design</h3><div class="design"><div class="stepbox"><span class="small">Replikate je Gruppe</span><div class="stepper-ctl"><button class="icon-btn" data-a="pn" data-x="-1" aria-label="Weniger Replikate">−</button><b>' + a.n + '</b><button class="icon-btn" data-a="pn" data-x="1" aria-label="Mehr Replikate">+</button></div><small class="muted">' + est.plots + ' Plots, max. ' + P.maxN(S) + ' je Gruppe</small></div>' +
         '<div class="stepbox"><span class="small">Kampagnen</span><div class="seg">' + [1, 2, 3, 4].map(function (k) { return '<button data-a="pick" data-x="k" data-y="' + k + '" aria-pressed="' + (a.k === k) + '">' + k + '</button>'; }).join('') + '</div><small class="muted">mindestens 6 Wochen Abstand</small></div></div>' +
         '<h3 class="eyebrow">Leitung</h3><div class="seg leads">' + leads + '</div>' +
-        '<dl class="stats plan-sum"><div><dt>Feldarbeit je Kampagne</dt><dd>' + hrs(est.fieldH) + '</dd></div><div><dt>Kosten, geschätzt</dt><dd>' + eur(est.cost) + '</dd></div><div><dt>Proben</dt><dd>' + esc(inst || 'nur Feldmessungen') + '</dd></div><div><dt>Teststärke</dt><dd>' + pct(est.power) + '</dd></div><div><dt>Saison</dt><dd>' + (est.months ? monthName(est.months[0]) + ' bis ' + monthName(est.months[1]) : 'ganzjährig') + '</dd></div><div><dt>Genehmigung</dt><dd>' + (est.permit ? wks(est.permit) : 'sofort') + '</dd></div></dl>' +
+        '<dl class="stats plan-sum"><div><dt>Feldgebiet</dt><dd>' + esc(regName(est.reg)) + '</dd></div><div><dt>Neuheit</dt><dd>×' + n2(est.novelty) + '</dd></div><div><dt>Feldarbeit je Kampagne</dt><dd>' + hrs(est.fieldH) + '</dd></div><div><dt>Kosten, geschätzt</dt><dd>' + eur(est.cost) + '</dd></div><div><dt>Proben</dt><dd>' + esc(inst || 'nur Feldmessungen') + '</dd></div><div><dt>Teststärke</dt><dd>' + pct(est.power) + '</dd></div><div><dt>Saison</dt><dd>' + (est.months ? monthName(est.months[0]) + ' bis ' + monthName(est.months[1]) : 'ganzjährig') + (est.brut ? ', ohne Brutzeit Mai und Juni' : '') + '</dd></div><div><dt>Genehmigung</dt><dd>' + (est.permit ? wks(est.permit) : 'sofort') + '</dd></div></dl>' +
         '<p class="small muted">Teststärke: die Chance, einen typischen echten Effekt mit gemischtem Modell zu finden. Unter 50 % bleibt viel im Rauschen.</p>' +
         (err ? '<p class="alert warn">' + esc(err) + '</p>' : '') +
         '<button class="btn primary wide" data-a="startstudy"' + (err ? ' disabled' : '') + '>Studie starten</button>';
@@ -4328,16 +4996,19 @@ var PPP = (function () {
       var d = P.decision(S, sheet.args.did);
       if (sheet.args.res) {
         var r = sheet.args.res;
-        return head('Feldtermin') + (r.comp < 0.4 ? '<p class="alert bad">' + ic('wave') + 'Abgebrochen. ' + esc(r.why || 'Die Bedingungen waren zu schlecht.') + ' Die Hälfte der Vorbereitung ist verloren.</p>' :
-          '<p class="alert ' + (r.comp >= 0.9 ? 'ok' : 'warn') + '">' + ic('wave') + pct(r.comp) + ' der Plots beprobt. ' + esc(r.why || 'Gute Bedingungen.') + '</p>') + '<button class="btn primary wide" data-a="close">Zurück ins Institut</button>';
+        var dv = r.dev <= -0.12 ? ' Das Wetter hielt sich nicht an die Vorhersage.' : r.dev >= 0.12 ? ' Es kam besser als angesagt.' : '';
+        return head('Feldtermin', r.reg ? esc(regName(r.reg)) : '') + (r.comp < 0.4 ? '<p class="alert bad">' + ic('wave') + 'Abgebrochen. ' + esc(r.why || 'Die Bedingungen waren zu schlecht.') + dv + ' Die Hälfte der Vorbereitung ist verloren.</p>' :
+          '<p class="alert ' + (r.comp >= 0.9 ? 'ok' : 'warn') + '">' + ic('wave') + pct(r.comp) + ' der Plots beprobt. ' + esc(r.why || 'Gute Bedingungen.') + dv + '</p>') + '<button class="btn primary wide" data-a="close">Zurück ins Institut</button>';
       }
       if (!d) return head('Feldtermin') + '<p>Der Termin wurde schon vergeben.</p>';
-      var fc = d.data.fc, st = d.data.extra ? null : studyOf(d.ref);
-      return head('Feldtermin wählen', (st ? esc(st.title) + ', Kampagne ' + (st.camp.done + 1) + ' von ' + st.k : 'Nachbeprobung') + '. Hell von ' + hh(fc.dl[0]) + ' bis ' + hh(fc.dl[1]) + '.') +
-        '<p class="small muted">Am besten: Niedrigwasser mitten am Tag, wenig Wind, kein Regen. Bei Sturmflut stehen die Flächen unter Wasser.</p>' +
-        '<p class="legend"><span><i style="background:var(--day)"></i>Tageslicht</span><span><i style="background:var(--night)"></i>Dunkelheit</span><span><i style="background:var(--daten);border-color:transparent;height:3px"></i>Wasserstand</span><span>● Niedrigwasser</span></p><ul class="days">' + fc.days.map(function (day, i) {
-          return '<li class="day' + (day.surge ? ' surge' : '') + '"><div class="day-top"><b>' + day.wd + '</b><span class="small">NW ' + day.lws.map(hh).join(' · ') + '</span><span class="small">' + day.wind + ' Bft ' + day.dir + '</span><span class="small">Regen ' + day.rain + ' %</span></div>' + tideSvg(day, fc.dl) +
-            (day.surge ? '<p class="small warn-t">Sturmflutwarnung</p>' : '') + '<button class="btn sm" data-a="decide" data-x="' + d.id + '" data-y="' + i + '">Diesen Tag nehmen</button></li>';
+      var fc = d.data.fc, st = d.data.extra ? null : studyOf(d.ref), xs = d.data.extra ? S.extra.filter(function (e) { return e.id === d.ref; })[0] : null;
+      var rid = st ? st.reg : xs && studyOf(xs.sid) ? studyOf(xs.sid).reg : fc.reg, Rg = P.REGM[rid] || null, nt = Rg && Rg.notide;
+      return head('Feldtermin wählen', (st ? esc(st.title) + ', Kampagne ' + (st.camp.done + 1) + ' von ' + st.k : 'Nachbeprobung') + (Rg ? ' · ' + esc(Rg.name) : '') + '. Hell von ' + hh(fc.dl[0]) + ' bis ' + hh(fc.dl[1]) + '.') +
+        '<p class="small muted">' + (nt ? 'Kein Tidenhub: Wind und Regen entscheiden. Bei kräftigem Wind drückt die Ostsee in die Wiesen.' : 'Am besten: Niedrigwasser mitten am Tag, wenig Wind, kein Regen. Bei Sturmflut stehen die Flächen unter Wasser.') + '</p>' +
+        (fc.exact === true ? '<p class="small ok-t">Eigene Wetterstation vor Ort: Die Vorhersage stimmt.</p>' : fc.exact === false ? '<p class="small muted">Küstenvorhersage: Wind und Regen können noch abweichen. Ortskenntnis und eine eigene Wetterstation machen sie verlässlicher.</p>' : '') +
+        '<p class="legend"><span><i style="background:var(--day)"></i>Tageslicht</span><span><i style="background:var(--night)"></i>Dunkelheit</span><span><i style="background:var(--daten);border-color:transparent;height:3px"></i>Wasserstand</span>' + (nt ? '' : '<span>● Niedrigwasser</span>') + '</p><ul class="days">' + fc.days.map(function (day, i) {
+          return '<li class="day' + (day.surge ? ' surge' : '') + '"><div class="day-top"><b>' + day.wd + '</b><span class="small">' + (day.nt || !day.lws.length ? 'kein Tidenhub' : 'NW ' + day.lws.map(hh).join(' · ')) + '</span><span class="small">' + day.wind + ' Bft ' + day.dir + '</span><span class="small">Regen ' + day.rain + ' %</span></div>' + tideSvg(day, fc.dl) +
+            (day.surge ? '<p class="small warn-t">' + (day.nt ? 'Hochwasserwarnung' : 'Sturmflutwarnung') + '</p>' : '') + '<button class="btn sm" data-a="decide" data-x="' + d.id + '" data-y="' + i + '">Diesen Tag nehmen</button></li>';
         }).join('') + '</ul>' + decNote(d);
     },
     kal: function () {
@@ -4418,7 +5089,7 @@ var PPP = (function () {
       if (!d) return head('Vorschlag') + '<p>Schon entschieden.</p>';
       var pl = d.data.plan, Q = P.QM[pl.q], est = P.planEstimate(S, pl);
       return head(esc(P.leadName(S, pl.lead)) + ' schlägt eine Studie vor', esc(Q.q)) +
-        '<dl class="stats plan-sum"><div><dt>Messgrößen</dt><dd>' + esc(pl.params.map(function (p) { return P.PARAMM[p].short; }).join(', ')) + '</dd></div><div><dt>Design</dt><dd>' + pl.n + ' je Gruppe, ' + pl.k + ' Kampagnen</dd></div><div><dt>Kosten, geschätzt</dt><dd>' + eur(est.cost) + '</dd></div><div><dt>Teststärke</dt><dd>' + pct(est.power) + '</dd></div></dl>' +
+        '<dl class="stats plan-sum"><div><dt>Feldgebiet</dt><dd>' + esc(regName(est.reg)) + '</dd></div><div><dt>Messgrößen</dt><dd>' + esc(pl.params.map(function (p) { return P.PARAMM[p].short; }).join(', ')) + '</dd></div><div><dt>Design</dt><dd>' + pl.n + ' je Gruppe, ' + pl.k + ' Kampagnen</dd></div><div><dt>Kosten, geschätzt</dt><dd>' + eur(est.cost) + '</dd></div><div><dt>Teststärke</dt><dd>' + pct(est.power) + '</dd></div></dl>' +
         decNote(d) + '<div class="two"><button class="btn ghost" data-a="decide" data-x="' + d.id + '" data-y="no">Ablehnen</button><button class="btn primary" data-a="decide" data-x="' + d.id + '" data-y="yes">Zustimmen</button></div>' +
         '<button class="btn ghost wide" data-a="adapt" data-x="' + d.id + '">Selbst anpassen</button>';
     },
@@ -4480,8 +5151,16 @@ var PPP = (function () {
         var b = P.trainBlock(S, p, C.id);
         return '<li class="row stack"><div class="row-main"><b>' + esc(C.name) + '</b><small>' + P.SKILL_NAME[C.k] + ' +1 · ' + (C.weeks === 1 ? '1 Woche' : C.weeks + ' Wochen') + ' weg · ' + eur(P.courseCost(p, C.id)) + '</small></div><div class="btns">' + (b ? lockTag(b) : '<button class="btn sm" data-a="train" data-x="' + p.id + '" data-y="' + C.id + '">Anmelden</button>') + '</div></li>';
       }).join('') + '</ul>' : '';
+      var pend = S.dec.filter(function (d) { return d.type === 'talent' && d.ref === p.id; })[0];
+      var strengths = (p.trait ? [p.trait] : []).concat(p.perks || []);
+      var focusSeg = Rl.station ? '<h3 class="eyebrow">Entwicklungsziel</h3><div class="seg">' + [['', 'Ausgewogen']].concat(P.SKILLS.filter(function (k) { return p.sk[k] != null; }).map(function (k) { return [k, P.SKILL_NAME[k]]; })).map(function (o) {
+        return '<button data-a="focus" data-x="' + p.id + '" data-y="' + o[0] + '" aria-pressed="' + ((p.focus || '') === o[0]) + '">' + o[1] + '</button>';
+      }).join('') + '</div><p class="small muted">Im Ziel lernt ' + esc(firstName(p.name)) + ' 50 % schneller, in allem anderen 25 % langsamer.</p>' : '';
+      var strong = Rl.station ? '<h3 class="eyebrow">Stärken</h3>' + (strengths.length ? strengths.map(traitTag).join('') : '<p class="small muted">Noch keine.</p>') +
+        '<p class="small muted">Bei Stufe 3 und 5 einer Fähigkeit wählt ihr gemeinsam eine neue Stärke, höchstens drei.</p>' + (pend ? '<button class="btn primary" data-a="dec" data-x="' + pend.id + '">' + ic('star') + 'Neue Stärke wählen</button>' : '') : '';
       return head(esc(p.name), esc(P.roleLabel(p)) + (p.title ? ' · ' + esc(p.title) : '') + ' · seit ' + wks(wksIn) + ' in der Gruppe') +
-        (Rl.station ? '<h3 class="eyebrow">Fähigkeiten</h3><ul class="rows">' + sk + '</ul>' : '') + '<p class="small muted">' + learn + '</p>' +
+        '<label class="eyebrow" for="srn">Name</label><div class="inline"><input id="srn" type="text" maxlength="40" value="' + esc(p.name) + '" autocomplete="off"><button class="btn sm" data-a="srename" data-x="' + p.id + '">Übernehmen</button></div>' +
+        (Rl.station ? '<h3 class="eyebrow">Fähigkeiten</h3><ul class="rows">' + sk + '</ul>' : '') + '<p class="small muted">' + learn + '</p>' + focusSeg + strong +
         (next ? '<h3 class="eyebrow">Laufbahn</h3>' + next : '') + (p.path && p.path.length ? timeline(p.path) : '') +
         (courses ? '<h3 class="eyebrow">Fortbildungen</h3><p class="small muted">Höchstens eine pro halbem Jahr: +1 auf die Fähigkeit und etwas Motivation.</p>' + courses : '') +
         '<dl class="stats"><div><dt>Tagungsbeiträge</dt><dd>' + (p.confs || 0) + '</dd></div><div><dt>Publikationen als Leitung</dt><dd>' + (p.pub || 0) + '</dd></div><div><dt>Motivation</dt><dd data-k="mot:' + p.id + '"></dd></div><div><dt>Vertrag</dt><dd data-k="contract:' + p.id + '"></dd></div></dl>';
@@ -4538,6 +5217,8 @@ var PPP = (function () {
         ['Einreichungen', n0(st.subs)], ['Desk Rejects', n0(st.desk)], ['Nullbefunde publiziert', n0(st.nulls)], ['Gutachten (treffend)', n0(st.reviews) + ' (' + n0(st.goodReviews) + ')'], ['Abschlussarbeiten', n0(st.theses)], ['Promotionen', n0(st.phds)],
         ['Tagungsbeiträge', n0(st.confs)], ['Vorträge (Keynotes)', n0(st.talks) + ' (' + n0(st.keynotes) + ')'], ['Posterpreise', n0(st.awards)], ['Fortbildungen', n0(st.trainings)], ['Dazugelernt (Stufen)', n0(st.levelups)],
         ['Laufbahnschritte in der AG', n0(st.internal)], ['Ehemalige (Professuren)', n0(st.alumniN) + ' (' + n0(st.profs) + ')'], ['Größtes Team', n0(st.maxStaff)], ['Fehlerfreie Kalibrierungen', n0(st.perfectCal)],
+        ['Datenjahre (alle Gebiete)', n0(P.REGIONS.reduce(function (s, Rg) { return s + P.regState(S, Rg.id).years.length; }, 0))], ['Langzeitsynthesen', n0(st.synth || 0)], ['Ortskenntnis-Stufen', n0(st.regUps || 0)],
+        ['Eigene Lernschritte', n0(st.piUps || 0)], ['Neue Stärken im Team', n0(st.perks || 0)],
         ['Drittmittel eingeworben', eurC(st.funds)], ['Publikationsgebühren', eurC(st.apc)], ['Ausgaben gesamt', eurC(st.spent)], ['Gutachter-Karma', n0(S.karma)]];
       return head('Statistik', 'Verläufe seit Spielbeginn. Antippen zeigt einzelne Werte.') +
         '<div class="charts"><div><h3 class="eyebrow">Budget in Euro</h3>' + lineChart('money', 'Budget', eur) + '</div><div><h3 class="eyebrow">Renommee</h3>' + lineChart('rep', 'Renommee', compact) + '</div>' +
@@ -4545,6 +5226,7 @@ var PPP = (function () {
         '<div><h3 class="eyebrow">Teamgröße</h3>' + lineChart('staff', 'Personen', tk) + '</div><div><h3 class="eyebrow">Offene Verwaltungsvorgänge</h3>' + lineChart('admin', 'Vorgänge', tk) + '</div></div>' +
         '<h3 class="eyebrow">Publikationen pro Jahr</h3>' + barsV(yrows, n0) +
         '<h3 class="eyebrow">Publikationen nach Zeitschrift</h3>' + barsH(jrows, n0) +
+        (P.REGIONS.some(function (Rg) { return P.regState(S, Rg.id).camps > 0; }) ? '<h3 class="eyebrow">Feldkampagnen nach Gebiet</h3>' + barsH(P.REGIONS.filter(function (Rg) { return P.regState(S, Rg.id).camps > 0; }).map(function (Rg) { return [Rg.name, P.regState(S, Rg.id).camps]; }).sort(function (x, y) { return y[1] - x[1]; }), n0) : '') +
         '<h3 class="eyebrow">Quoten</h3><ul class="rows">' + meter('Feldtermine durchgeführt', st.campaigns, st.campaigns + st.failed) + meter('Einreichungen, die erschienen sind', st.papers, st.subs) +
         meter('Treffende Gutachten', st.goodReviews, st.reviews) + meter('Tagungsbeiträge als Vortrag', st.talks, st.confs) + meter('Gute Antworten in Fragerunden', st.qaGood, st.talks) + '</ul>' +
         '<h3 class="eyebrow">Zahlen</h3><dl class="stats">' + rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('') + '</dl>';
@@ -4572,6 +5254,88 @@ var PPP = (function () {
       return head('Spielstand-Code eingeben', 'Den Code findest du auf dem anderen Gerät unter Lebenslauf → Cloud-Speicher.') + '<input id="cloudcode" type="text" maxlength="40" placeholder="ABCD-EFGH-…" autocomplete="off" autocapitalize="characters" spellcheck="false">' +
         '<p class="small muted">Danach lädt dieses Gerät den Spielstand aus der Cloud und speichert dorthin.</p><button class="btn primary wide" data-a="cloudset">Verbinden</button>';
     },
+    region: function () {
+      var rid = sheet.args.rid, Rg = P.REGM[rid];
+      if (!Rg) return head('Feldgebiet') + '<p>Unbekannt.</p>';
+      var rs = P.regState(S, rid), l = P.ortsLevel(S, rid), open = rs.open, U = Rg.unlock || {};
+      var html = head(esc(Rg.name), esc(Rg.area) + ' · ' + (open ? 'Ortskenntnis »' + P.ORTS[l].name + '«' : 'noch nicht erschlossen')) + '<p>' + esc(Rg.desc) + '</p>';
+      if (!open) {
+        var b = P.regionBlock(S, rid);
+        html += '<p class="sum">Erkundungsfahrt, Kontakte zu Station und Behörden, erste Genehmigungen: ' + esc(unlockText(Rg)) + '.' + (P.hasTalent(S, 'ortskunde') ? ' Als Pfadfinder*in zahlst du 30 % weniger.' : '') + '</p>' +
+          (b && b !== 'Nicht genug Geld.' ? lockTag(b) : '<button class="btn primary wide" data-a="regopen" data-x="' + rid + '" data-cost="' + P.regUnlockCost(S, rid) + '">Gebiet erschließen · ' + eur(P.regUnlockCost(S, rid)) + '</button>');
+      } else {
+        html += '<h3 class="eyebrow">Ortskenntnis</h3><div class="row req"><div class="row-main"><b>' + P.ORTS[l].name + '</b>' + bar('regxp:' + rid, 'thin okbar') + '<small data-k="regxp:' + rid + '"></small></div></div>' +
+          '<p class="small muted">Jede Kampagne zählt einen Punkt, mit dir selbst im Feld 1,25, ein abgebrochener Termin einen halben.' + (rs.studies ? '' : ' Die erste Studie hier ist 8 % neuer.') + '</p>' +
+          '<ol class="ladder">' + P.ORTS.map(function (o, i) {
+            var stt = i < l ? 'done' : i === l ? 'now' : 'next';
+            return '<li class="step ' + stt + '"><span class="dot">' + (i < l ? ic('check') : '') + '</span><div class="row-main"><b>' + o.name + (i === l ? ' <span class="chip">jetzt</span>' : '') + '</b><small>' + (i ? 'ab ' + o.n + ' Punkten · ' : '') + esc(o.desc) + '</small></div></li>';
+          }).join('') + '</ol>';
+      }
+      var pf = P.prepFactor(S, rid), aff = Object.keys(Rg.aff || {}).filter(function (q) { return P.QM[q]; });
+      html += '<h3 class="eyebrow">Bedingungen vor Ort</h3><dl class="stats">' +
+        '<div><dt>Feldvorbereitung</dt><dd>' + (pf >= 1 ? '+' : '−') + pct(Math.abs(pf - 1)) + '</dd></div><div><dt>Reisekosten je Kampagne</dt><dd>' + (P.travelCost(S, rid) ? eur(P.travelCost(S, rid)) : 'keine') + '</dd></div>' +
+        '<div><dt>Genehmigung</dt><dd>' + (P.permitWeeks(S, rid) ? wks(P.permitWeeks(S, rid)) : 'sofort') + ' · ' + (Rg.np ? 'Nationalpark' : 'Naturschutzbehörde') + '</dd></div><div><dt>Wasserstand</dt><dd>' + (Rg.notide ? 'kein Tidenhub, windgetrieben' : 'Tide') + '</dd></div>' +
+        '<div><dt>Wind</dt><dd>' + (Rg.wind <= -0.5 ? 'geschützt' : Rg.wind >= 0.8 ? 'exponiert' : 'mittel') + '</dd></div><div><dt>Sturmflutrisiko</dt><dd>' + (Rg.surge <= 0.7 ? 'gering' : Rg.surge >= 1.2 ? 'hoch' : 'mittel') + '</dd></div>' +
+        '<div><dt>Brutzeit</dt><dd>' + (Rg.brut ? 'Mai und Juni gesperrt' : 'keine Sperre') + '</dd></div><div><dt>Vorhersage</dt><dd>' + (P.regEq(S, rid, 'pegel') ? 'eigene Station, stimmt' : P.ortsLevel(S, rid) >= 3 ? 'meist verlässlich' : 'Küstenvorhersage') + '</dd></div></dl>' +
+        '<h3 class="eyebrow">Passt besonders zu</h3><p class="chips">' + aff.map(function (q) { return '<span class="chip">' + esc(P.QM[q].title) + ' ×' + n2(Rg.aff[q]) + '</span>'; }).join('') +
+        P.QUESTIONS.filter(function (q) { return q.regions && q.regions.indexOf(rid) >= 0; }).map(function (q) { return '<span class="chip ok">nur hier: ' + esc(q.title) + '</span>'; }).join('') + (Rg.novelty ? '<span class="chip">alle Fragen ×' + n2(Rg.novelty) + '</span>' : '') + '</p>';
+      if (open) {
+        html += '<h3 class="eyebrow">Ausstattung vor Ort</h3><ul class="rows">' + P.REQ.map(function (E) {
+          var own = P.regEq(S, rid, E.id), bl = own ? null : P.reqBlock(S, rid, E.id), c = P.reqCost(S, rid, E.id);
+          var right = own ? '<span class="owned">' + ic('check') + 'vorhanden</span>' : bl && bl !== 'Nicht genug Geld.' ? lockTag(bl) : '<button class="btn sm" data-a="reqbuy" data-x="' + rid + '" data-y="' + E.id + '" data-cost="' + c + '">' + eur(c) + '</button>';
+          return '<li class="row' + (own ? ' is-owned' : '') + '"><div class="row-main"><b>' + esc(E.name) + '</b><small>' + esc(E.desc) + '</small></div>' + right + '</li>';
+        }).join('') + '</ul>';
+        var sb = P.synthBlock(S, rid), ys = rs.years.slice().sort();
+        html += '<h3 class="eyebrow">Langzeitreihe</h3>' + (ys.length ? '<p class="chips">' + ys.map(function (y, i) { return '<span class="chip' + (i < rs.synth ? '' : ' ok') + '">' + y + '</span>'; }).join('') + '</p>' : '') +
+          '<p class="small muted">' + (P.regEq(S, rid, 'plots') ? 'Jedes Jahr mit Kampagne auf den Dauerplots wird ein Datenjahr' + (P.regEq(S, rid, 'logger') ? ', die Messstation liefert es auch ohne Kampagne' : '') + '. Jedes Datenjahr stärkt Manuskripte aus diesem Gebiet um 1 %, bis 10 %.' : 'Ohne Dauerplots gibt es keine Langzeitreihe. Mit ihnen wird jedes Jahr mit Kampagne ein Datenjahr.') +
+          ' Ab fünf neuen Datenjahren lohnt eine Langzeitsynthese: robuste Befunde und ein starkes Manuskript.</p>' +
+          (sb ? lockTag(sb) : '<button class="btn primary wide" data-a="synth" data-x="' + rid + '">' + ic('scatter') + 'Langzeitsynthese starten</button>');
+        html += '<dl class="stats"><div><dt>Kampagnen</dt><dd>' + rs.camps + '</dd></div><div><dt>Abgebrochen</dt><dd>' + rs.fails + '</dd></div><div><dt>Studien</dt><dd>' + rs.studies + '</dd></div><div><dt>Publikationen</dt><dd>' + rs.papers + '</dd></div></dl>';
+      }
+      return html;
+    },
+    profil: function () {
+      var pi = S.pi, sp = pi.spec ? P.SPECM[pi.spec] : null;
+      var html = head('Dein Profil', esc(P.CAREER[S.career].name) + ' · ' + (sp ? esc(sp.name) : 'Schwerpunkt noch offen'));
+      if (!sp) html += '<h3 class="eyebrow">Schwerpunkt wählen</h3><p class="small muted">Gibt +1 auf eine Fähigkeit und stärkt Studien zu deinen Themen. Lässt sich danach nicht mehr ändern.</p><ul class="opts">' + P.SPECS.map(function (x) {
+        return '<li><button class="opt" data-a="spec" data-x="' + x.id + '"><span class="row-main"><b>' + esc(x.name) + ' <span class="chip">+1 ' + P.PI_SKILL_NAME[x.sk] + '</span></b><small>' + esc(x.desc) + '</small></span></button></li>';
+      }).join('') + '</ul>';
+      else html += '<p class="sum"><b>' + esc(sp.name) + '.</b> ' + esc(sp.desc) + '</p>';
+      html += '<h3 class="eyebrow">Fähigkeiten · ' + (pi.pts ? pi.pts + (pi.pts === 1 ? ' Punkt frei' : ' Punkte frei') : 'keine Punkte frei') + '</h3><p class="small muted">Punkte gibt es mit jeder Karrierestufe (zwei) und alle zehn Publikationen (einen). Außerdem lernst du durch das, was du tust: im Feld Feldarbeit, am Schreibtisch Schreiben und Statistik, in der Lehre Lehre, im Posteingang Führung. Höchstens ' + P.PI_MAX + '.</p><ul class="rows">' +
+        P.PI_SKILLS.map(function (k) {
+          return '<li class="row"><div class="row-main"><b>' + P.PI_SKILL_NAME[k] + ' ' + piPips(pi.sk[k], pi.xp[k] || 0) + '</b><small>' + P.PI_SKILL_DESC[k] + ' · <span data-k="pixp:' + k + '"></span></small></div>' +
+            (pi.pts > 0 && pi.sk[k] < P.PI_MAX ? '<button class="icon-btn" data-a="pt" data-x="' + k + '" aria-label="Punkt auf ' + P.PI_SKILL_NAME[k] + '">+</button>' : '') + '</li>';
+        }).join('') + '</ul>';
+      var mine = P.TALENTS.filter(function (t) { return P.hasTalent(S, t.id); }), rest = P.TALENTS.filter(function (t) { return !P.hasTalent(S, t.id); });
+      html += '<h3 class="eyebrow">Talente · ' + (pi.picks ? pi.picks + ' frei' : 'keins frei') + '</h3>' +
+        (mine.length ? '<ul class="rows">' + mine.map(function (t) { return '<li class="row is-owned"><div class="row-main"><b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small></div><span class="owned">' + ic('check') + '</span></li>'; }).join('') + '</ul>' : '') +
+        (pi.picks > 0 ? '<ul class="opts">' + rest.map(function (t) { return '<li><button class="opt" data-a="tal" data-x="' + t.id + '"><span class="row-main"><b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small></span></button></li>'; }).join('') + '</ul>'
+          : '<details class="equip" data-d="tals"' + (openD.tals ? ' open' : '') + '><summary><span>Weitere Talente (' + rest.length + ')</span>' + ic('chev', 'turn') + '</summary><ul class="rows">' + rest.map(function (t) { return '<li class="row"><div class="row-main"><b>' + esc(t.name) + '</b><small>' + esc(t.desc) + '</small></div></li>'; }).join('') + '</ul></details><p class="small muted">Ein neues Talent gibt es mit der nächsten Karrierestufe.</p>');
+      var topics = Object.keys(S.topicPubs || {}).filter(function (t) { return S.topicPubs[t] > 0; }).sort(function (x, y) { return S.topicPubs[y] - S.topicPubs[x]; });
+      html += '<h3 class="eyebrow">Forschungsprofil</h3>' + (topics.length ? barsH(topics.map(function (t) { return [(P.TOPIC_NAME[t] || t) + ' · ' + P.EXPERT[P.expertLevel(S, t)].name, S.topicPubs[t]]; }), n0) +
+        '<p class="small muted">Je mehr du zu einem Thema publizierst, desto stärker werden Manuskripte dazu: +1,5 % je Stufe, bis zur Koryphäe ab 15 Publikationen. Neue Fragen bleiben trotzdem neuer.</p>' : '<p class="small muted">Noch keine Publikationen. Jede Publikation zahlt auf ein Thema ein.</p>');
+      return html;
+    },
+    talent: function () {
+      var d = P.decision(S, sheet.args.did);
+      if (!d) return head('Neue Stärke') + '<p>Schon entschieden.</p>';
+      var p = P.person(S, d.data.pid);
+      if (!p) return head('Neue Stärke') + '<p>Nicht mehr in der Gruppe.</p>';
+      return head(esc(p.name) + ': neue Stärke', P.SKILL_NAME[d.data.k] + ' jetzt ' + p.sk[d.data.k] + ' von 5. Worauf spezialisiert sich ' + esc(firstName(p.name)) + '?') +
+        '<ul class="opts">' + d.data.opts.map(function (id) { var T = P.TRAITM[id]; return '<li><button class="opt" data-a="decide" data-x="' + d.id + '" data-y="' + id + '"><span class="row-main"><b>' + esc(T.name) + '</b><small>' + esc(T.desc) + '</small></span></button></li>'; }).join('') + '</ul>' + decNote(d);
+    },
+    neu: function () {
+      return head('Neu in Version 4', 'Feldgebiete, Ortskenntnis, Langzeitreihen und dein eigenes Profil.') +
+        '<ul class="loop">' +
+        '<li><b>Spieltempo:</b> Eine Spielwoche dauert jetzt zwei Minuten statt einer. Einstellbar im Lebenslauf.</li>' +
+        '<li><b>Feldgebiete:</b> Sieben Gebiete von Sylt bis zur Ostsee, jedes mit eigenen Bedingungen: Tide oder Wind, Anreise, Genehmigung und Fragen, die dort besonders gut passen. Das Gebiet wählst du bei der Studienplanung, auf einer Karte.</li>' +
+        '<li><b>Ortskenntnis:</b> Jede Kampagne macht dich in einem Gebiet heimischer: weniger Vorbereitung, bessere Termine, schnellere Genehmigungen. Deine bisherigen Kampagnen zählen für die Hamburger Hallig.</li>' +
+        '<li><b>Ausstattung vor Ort:</b> Dauerplots, Pegel und Wetterstation, Quartier, Messstation und Partnerschaften, je Gebiet. Die Küstenvorhersage stimmt nicht immer, die eigene Station schon.</li>' +
+        '<li><b>Langzeitreihen:</b> Mit Dauerplots wird jedes Jahr ein Datenjahr. Ab fünf Datenjahren wertest du eine Langzeitsynthese aus.</li>' +
+        '<li><b>Dein Profil:</b> Schwerpunkt, sechs Fähigkeiten und Talente. Punkte gibt es mit jeder Karrierestufe, und du lernst durch das, was du tust. Deine bisherige Erfahrung ist übernommen, ' + (1 + S.career) + (S.career ? ' Talente warten' : ' Talent wartet') + ' auf dich.</li>' +
+        '<li><b>Team:</b> Entwicklungsziele, neue Stärken ab Stufe 3 und 5, und du kannst Leute umbenennen.</li></ul>' +
+        '<div class="two"><button class="btn ghost" data-a="close">Später</button><button class="btn primary" data-a="neuprofil">Profil einrichten</button></div>';
+    },
     cv: cvHtml,
     confirm: function () {
       var a = sheet.args;
@@ -4580,13 +5344,16 @@ var PPP = (function () {
     help: function () {
       return head('Spielprinzip') + '<div class="prose">' +
         '<p><b>Studien</b> sind das Herz des Spiels. Du wählst eine Fragestellung, Messgrößen, Replikate und Kampagnen. Mehr Replikate erhöhen die Teststärke, kosten aber Feld- und Laborzeit. Ob ein Effekt echt ist, weißt du vorher nicht.</p>' +
-        '<p><b>Feld:</b> Kampagnen brauchen Feldstunden und die richtige Jahreszeit. Treibhausgase misst du von April bis Oktober, Vegetation von Juni bis September. Den Termin wählst du nach Tide und Wetter.</p>' +
+        '<p><b>Feld:</b> Kampagnen brauchen Feldstunden und die richtige Jahreszeit. Treibhausgase misst du von April bis Oktober, Vegetation von Juni bis September. Den Termin wählst du nach Tide und Wetter. Die Küstenvorhersage kann danebenliegen.</p>' +
+        '<p><b>Feldgebiete:</b> Jede Studie läuft in einem Gebiet. Gebiete unterscheiden sich in Anreise, Reisekosten, Genehmigung, Tide, Wind und darin, welche Fragen dort besonders neu sind. Methan entlang des Salzgradienten geht nur an der Elbe, Rückdeichung nur an der Ostsee. Neue Gebiete erschließt du im Institut.</p>' +
+        '<p><b>Ortskenntnis und Langzeitreihen:</b> Jede Kampagne bringt Ortskenntnis, von »Neuland« bis »Legende«, mit weniger Vorbereitung, besseren Terminen und schnelleren Genehmigungen. Dauerplots machen jedes Jahr mit Kampagne zum Datenjahr, ab fünf Datenjahren lohnt eine Langzeitsynthese.</p>' +
+        '<p><b>Dein Profil:</b> Schwerpunkt, sechs Fähigkeiten bis Stufe ' + P.PI_MAX + ' und Talente. Punkte gibt es mit jeder Karrierestufe und alle zehn Publikationen, dazu lernst du durch das, was du tust.</p>' +
         '<p><b>Labor:</b> Jede Messgröße braucht ein Gerät. Geräte haben Kapazität, müssen kalibriert werden und gehen kaputt. Gasproben verderben, wenn sie zu lange warten.</p>' +
         '<p><b>Auswertung:</b> Mehrere Kampagnen an denselben Plots sind keine unabhängigen Wiederholungen. Wer alles poolt, bekommt schöne p-Werte und später Ärger mit den Gutachter*innen.</p>' +
         '<p><b>Manuskripte</b> baust du aus Befunden: ein Hauptbefund, bis zu zwei stützende, dazu die Rahmung. Danach schreiben, Ko-Autor*innen lesen gegen, du wählst die Zeitschrift und antwortest auf Gutachten.</p>' +
         '<p><b>Entscheidungen</b> sammeln sich unter »Heute«. Triffst du sie nicht, entscheidet das Team nach einer Frist, solide, aber selten optimal.</p>' +
         '<p><b>Verwaltung:</b> Mit jeder Stelle, jedem Antrag und jeder Studie kommen Vorgänge dazu. Ab 25 offenen Vorgängen sinkt deine Leistung. Hilfe: Abwesenheitsnotiz »Mails & Verwaltung« oder eine Teamassistenz.</p>' +
-        '<p><b>Team und Laufbahnen:</b> Wer arbeitet, lernt dazu. Fortbildungen beschleunigen das. Hiwis können bei dir ihre Abschlussarbeit schreiben, gute Absolvent*innen promovieren, Promovierte bleiben als Postdoc, Postdocs bekommen Rufe. Ehemalige stärken dein Netzwerk.</p>' +
+        '<p><b>Team und Laufbahnen:</b> Wer arbeitet, lernt dazu. Fortbildungen und ein Entwicklungsziel beschleunigen das, bei Stufe 3 und 5 kommt eine neue Stärke dazu. Hiwis können bei dir ihre Abschlussarbeit schreiben, gute Absolvent*innen promovieren, Promovierte bleiben als Postdoc, Postdocs bekommen Rufe. Ehemalige stärken dein Netzwerk.</p>' +
         '<p><b>Tagungen:</b> Zehn Wochen vor jeder Tagung entscheidest du über Beitrag, Befund und wer fährt. Nach Vorträgen gibt es eine Fragerunde, ehrliche Antworten kommen am besten an.</p>' +
         '<p><b>Karriere:</b> h-Index, Renommee und je Stufe eine Zusatzbedingung. Doktorand*innen brauchen drei eingereichte Kapitel und eine Publikation, um zu promovieren.</p></div>';
     }
@@ -4610,6 +5377,7 @@ var PPP = (function () {
       if (d.type === 'ruf' && typeof res === 'string' && res !== 'bleibt' && res !== 'geht') { warn(res); return; }
       if (d.type === 'termin' || d.type === 'event' || d.type === 'fragerunde' || d.type === 'ruf') { sheet.args.res = res || 'Erledigt.'; renderSheet(); render(); return; }
       if (d.type === 'stat') note('Die Auswertung mit ' + (P.MODELS[res] ? P.MODELS[res].name : 'dem gewählten Modell') + ' liegt auf dem Schreibtisch.');
+      else if (d.type === 'talent') { if (P.TRAITM[res]) note('Neue Stärke: ' + P.TRAITM[res].name + '.'); }
       else if (typeof res === 'string') warn(res);
       sheet = null; renderSheet(); render();
     },
@@ -4619,7 +5387,7 @@ var PPP = (function () {
     pparam: function (x) { var a = sheet.args, i = a.params.indexOf(x); if (i >= 0) a.params.splice(i, 1); else a.params.push(x); renderSheet(); },
     pn: function (x) { var a = sheet.args; a.n = Math.max(3, Math.min(P.maxN(S), a.n + (+x))); renderSheet(); },
     startstudy: function () {
-      var a = sheet.args, err = P.newStudy(S, { q: a.q, n: a.n, k: a.k, params: a.params.slice(), lead: a.lead }, evs);
+      var a = sheet.args, err = P.newStudy(S, { q: a.q, n: a.n, k: a.k, params: a.params.slice(), lead: a.lead, reg: a.reg }, evs);
       if (err) return warn(err);
       if (a.fromDec) P.dismissDecision(S, a.fromDec);
       sheet = null; renderSheet(); tab = 'forschung'; done(null, 'Studie gestartet.');
@@ -4629,7 +5397,7 @@ var PPP = (function () {
       if (!d) return;
       var pl = d.data.plan;
       var params = pl.params.slice(); params._q = pl.q;
-      openSheet('plan', { q: pl.q, n: pl.n, k: pl.k, params: params, lead: pl.lead, fromDec: x });
+      openSheet('plan', { q: pl.q, n: pl.n, k: pl.k, params: params, lead: pl.lead, reg: pl.reg, fromDec: x });
     },
     story: function (x) { openSheet('story', { sid: x }); },
     smain: function (x) { var a = sheet.args; a.main = +x; a.sup = a.sup.filter(function (i) { return i !== +x; }); renderSheet(); },
@@ -4659,6 +5427,31 @@ var PPP = (function () {
     prio: function (x, y) { P.studyPrio(S, x, +y); done(null); },
 
     dev: function (x) { openSheet('dev', { pid: x }); },
+    region: function (x) { openSheet('region', { rid: x }); },
+    regopen: function (x) { done(P.openRegion(S, x, evs)); },
+    reqbuy: function (x, y) { done(P.buyReq(S, x, y, evs)); },
+    synth: function (x) { var err = P.startSynthesis(S, x, evs); if (err) return warn(err); sheet = null; renderSheet(); tab = 'schreiben'; done(null, 'Langzeitsynthese gestartet. Die Auswertung liegt auf dem Schreibtisch.'); },
+    tempo: function (x) { P.setTempo(S, x); done(null, 'Spieltempo: ' + tempoName(P.tempo(S))); },
+    chron: function () { openD.chron = !openD.chron; renderSheet(); },
+    wstep: function (x) { var nm = $('#nm0'); if (nm) sheet.args.name = nm.value; sheet.args.step = +x; renderSheet(); var pnl = $('.sheet-panel'); if (pnl) pnl.scrollTop = 0; },
+    wspec: function (x) { sheet.args.spec = x; renderSheet(); },
+    wadd: function (x, y) {
+      var a = sheet.args, used = P.PI_SKILLS.reduce(function (s, k) { return s + (a.add[k] || 0); }, 0), v = (a.add[x] || 0) + (+y);
+      if (v < 0 || v > 2 || (+y > 0 && used >= 3)) return;
+      a.add[x] = v; renderSheet();
+    },
+    wtal: function (x) { sheet.args.talent = sheet.args.talent === x ? null : x; renderSheet(); },
+    wtempo: function (x) { sheet.args.tempo = +x; renderSheet(); },
+    spec: function (x) { var err = P.setSpec(S, x); done(err, err ? null : 'Schwerpunkt: ' + P.SPECM[x].name + '.'); },
+    pt: function (x) { var err = P.spendPoint(S, x); done(err, err ? null : P.PI_SKILL_NAME[x] + ' jetzt ' + S.pi.sk[x] + '.'); },
+    tal: function (x) { var err = P.pickTalent(S, x); done(err, err ? null : 'Neues Talent: ' + P.TALM[x].name + '.'); },
+    focus: function (x, y) { done(P.setFocus(S, x, y || null)); },
+    srename: function (x) {
+      var el = $('#srn'), err = P.renameStaff(S, x, el ? el.value : '');
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      done(err, err ? null : 'Name geändert.');
+    },
+    neuprofil: function () { S.flags.v4seen = true; openSheet('profil', {}); },
     train: function (x, y) { if (!done(P.train(S, x, y, evs))) return; },
     thesis: function (x) { var p = P.person(S, x), err = P.offerThesis(S, x, evs); if (err) return warn(err); sheet = null; renderSheet(); done(null, (p ? p.name : 'Die Person') + ' wechselt zu den Abschlussarbeiten.'); },
     lablead: function (x) { done(P.makeLabLead(S, x, evs)); },
@@ -4727,9 +5520,10 @@ var PPP = (function () {
       done(null, 'Name geändert.');
     },
     begin: function () {
-      var v = ($('#nm0').value || '').trim().replace(/\s+/g, ' ');
+      var a = (sheet && sheet.args) || {}, nm = $('#nm0'), v = ((nm ? nm.value : a.name) || '').trim().replace(/\s+/g, ' ');
       S.name = v.length >= 2 ? v : 'Alex Watt';
-      S.flags.onboarded = true;
+      if (a.step === 2) P.createProfile(S, { spec: a.spec || 'bgc', add: a.add || {}, talent: a.talent || null, tempo: a.tempo || 2 });
+      S.flags.onboarded = true; S.flags.v4seen = true;
       sheet = null; renderSheet();
       lastTick = Date.now(); S.lastSeen = Date.now();
       saveLocal(); saveDb(); render();
@@ -4753,7 +5547,11 @@ var PPP = (function () {
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && sheet) closeSheet();
       if (e.key === 'Enter' && e.target && e.target.id === 'nm') ACTIONS.rename();
-      if (e.key === 'Enter' && e.target && e.target.id === 'nm0') ACTIONS.begin();
+      if (e.key === 'Enter' && e.target && e.target.id === 'nm0') ACTIONS.wstep('2');
+      if (e.key === 'Enter' && e.target && e.target.id === 'srn' && sheet && sheet.args.pid) ACTIONS.srename(sheet.args.pid);
+      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('mk') && e.target.getAttribute('data-a')) {
+        e.preventDefault(); var fn = ACTIONS[e.target.getAttribute('data-a')]; if (fn) fn(e.target.getAttribute('data-x'), e.target.getAttribute('data-y'), e.target);
+      }
       if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('calpt')) { e.preventDefault(); ACTIONS.kaltoggle(e.target.getAttribute('data-x')); }
     });
     document.addEventListener('pointerdown', chartHover);
