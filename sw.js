@@ -1,5 +1,5 @@
 // Service Worker: App-Dateien offline verfügbar, index.html zuerst aus dem Netz (damit Updates ankommen)
-const CACHE = 'ppp-407c4742ef';
+const CACHE = 'ppp-15cedc980f';
 const CORE = ['./', './index.html', './manifest.webmanifest', './firebase-config.js', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
